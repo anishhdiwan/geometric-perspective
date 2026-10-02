@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning | NeurIPS 2026</title>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SEO & SOCIAL SHARING
+       ═══════════════════════════════════════════════════════ -->
+  <meta name="description"
+        content="A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning. NeurIPS 2026. An occupancy-space view of reward updates in IRL: preconditioning the dual gradient with the average Fisher information along the e-geodesic yields a convex interpolation of rewards, natural-gradient-style updates, and entropic mirror descent on the policy.">
+  <meta name="keywords"
+        content="Inverse Reinforcement Learning, Imitation Learning, Reward Learning, Natural Gradient, Mirror Descent, Information Geometry, Fisher Information, NeurIPS 2026">
+  <meta name="author"
+        content="Anish Diwan, Jan Peters, Oleg Arenz">
+
+  <link rel="icon" href="static/figures/neurips-navbar-logo.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="static/figures/neurips-navbar-logo.svg" type="image/svg">
+  <link rel="apple-touch-icon" href="static/figures/neurips-navbar-logo.svg">
+
+  <link rel="canonical" href="https://anishhdiwan.github.io/geometric-perspective/">
+
+  <meta property="og:type"        content="article">
+  <meta property="og:title"       content="A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning | NeurIPS 2026">
+  <meta property="og:description" content="An occupancy-space view of reward function updates in inverse reinforcement learning.">
+  <meta property="og:url"         content="https://anishhdiwan.github.io/geometric-perspective/">
+  <meta property="og:image"       content="https://anishhdiwan.github.io/geometric-perspective/static/og.png">
+
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:image"       content="https://anishhdiwan.github.io/geometric-perspective/static/og.png">
+  <meta name="twitter:title"       content="A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning | NeurIPS 2026">
+  <meta name="twitter:description" content="An occupancy-space view of reward function updates in inverse reinforcement learning. NeurIPS 2026">
+
+  <!-- FONT — see HOW_TO_EDIT.md §2 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@400;500;600;700;800;900&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+        rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Site styles — all config lives at the top of this file -->
+  <link rel="stylesheet" href="style.css?v=5">
+
+  <!-- Must run in <head> to avoid flash of wrong theme on load.
+       Same storage key as theory.html, so the theme carries over. -->
+  <script>
+    (function () {
+      var stored = localStorage.getItem('trirl-theme');
+      if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+    <!-- math rendering -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          macros: {
+            nicefrac: ['{}^{#1}\\!/\\!{}_{#2}', 2],
+            // equation side-note; colour set by .eq-note in style.css (theme-aware)
+            eqnote: ['\\class{eq-note}{\\small\\text{#1}}', 1]
+          }
+        },
+        // MathJax has no LaTeX 'HTML' colour model, so rewrite
+        // \textcolor[HTML]{1E90FF} (also \color, \colorbox) to the
+        // equivalent [RGB]{30,144,255} before parsing. Lets paper
+        // LaTeX with hex colours be pasted in unchanged.
+        startup: {
+          ready() {
+            MathJax.startup.defaultReady();
+            MathJax.startup.input.forEach(jax => {
+              if (jax.name !== 'TeX') return;
+              jax.preFilters.add(({math}) => {
+                math.math = math.math.replace(
+                  /\\(textcolor|color|colorbox)\s*\[HTML\]\s*\{\s*([0-9A-Fa-f]{6})\s*\}/g,
+                  (_, cmd, hex) => '\\' + cmd + '[RGB]{' +
+                    [0, 2, 4].map(i => parseInt(hex.substr(i, 2), 16)).join(',') + '}');
+              });
+            });
+          }
+        }
+      };
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+
+  <!-- 100% privacy-first analytics -->
+  <script>window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};</script>
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
+</head>
+<body>
+<div class="page">
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION BAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="site-nav ap">
+    <a href="https://anishhdiwan.github.io/" class="nav-back">← Back</a>
+    <button id="theme-btn" class="theme-btn" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE HEADER
+       ═══════════════════════════════════════════════════════ -->
+  <span class="venue-tag" aria-label="NeurIPS 2026">
+    <img src="static/figures/NeurIPS-logo.svg" alt="NeurIPS" class="venue-tag__logo">
+    <span class="venue-tag__meta">2026</span>
+  </span>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       LOGOS
+       ═══════════════════════════════════════════════════════ -->
+  <div class="affil-logos ap" aria-label="Affiliated institutes">
+    <span class="affil-logo-pair" style="--logo-w:52px;">
+      <img src="static/figures/ias_logo_dark.svg" alt="Intelligent Autonomous Systems Group" class="affil-logo affil-logo--light">
+      <img src="static/figures/ias_logo_light.svg" alt="Intelligent Autonomous Systems Group" class="affil-logo affil-logo--dark">
+    </span>
+
+    <span class="affil-logo-pair" style="--logo-w:96px;">
+      <img src="static/figures/tuda_logo_dark.svg" alt="Technical University of Darmstadt" class="affil-logo affil-logo--light">
+      <img src="static/figures/tuda_logo_light.svg" alt="Technical University of Darmstadt" class="affil-logo affil-logo--dark">
+    </span>
+
+    <span class="affil-logo-pair" style="--logo-w:96px;">
+      <img src="static/figures/hessian_AI_logo_dark.svg" alt="hessian.AI" class="affil-logo affil-logo--light">
+      <img src="static/figures/hessian_AI_logo_light.svg" alt="hessian.AI" class="affil-logo affil-logo--dark">
+    </span>
+
+    <span class="affil-logo-pair" style="--logo-w:42px;">
+      <img src="static/figures/dfki_logo_dark.svg" alt="German Research Center for Artificial Intelligence (DFKI)" class="affil-logo affil-logo--light">
+      <img src="static/figures/dfki_logo_light.svg" alt="German Research Center for Artificial Intelligence (DFKI)" class="affil-logo affil-logo--dark">
+    </span>
+
+    <span class="affil-logo-pair" style="--logo-w:72px;">
+      <img src="static/figures/rig_logo_dark.svg" alt="Robotics Institute Germany (RIG)" class="affil-logo affil-logo--light">
+      <img src="static/figures/rig_logo_light.svg" alt="Robotics Institute Germany (RIG)" class="affil-logo affil-logo--dark">
+    </span>
+
+    <span class="affil-logo-pair" style="--logo-w:130px;">
+      <img src="static/figures/eu_cofunded_dark.svg" alt="Co-funded by the European Union" class="affil-logo affil-logo--light">
+      <img src="static/figures/eu_cofunded_light.svg" alt="Co-funded by the European Union" class="affil-logo affil-logo--dark">
+    </span>
+  </div>
+
+  <h1 class="site-title ap">
+    A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning
+  </h1>
+
+  <p class="authors ap">
+    <a href="https://anishhdiwan.github.io/">Anish Diwan</a>
+    &middot; <a href="https://www.ias.tu-darmstadt.de/Team/JanPeters">Jan Peters</a>
+    &middot; <a href="https://www.ias.informatik.tu-darmstadt.de/Team/OlegArenz">Oleg Arenz</a>
+  </p>
+
+  <p class="affils ap">Technical University of Darmstadt &middot; Robotics Institute Germany (RIG)
+    &middot; hessian.AI &middot; German Research Center for AI (DFKI)
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BUTTONS
+       ═══════════════════════════════════════════════════════ -->
+  <div class="btns ap">
+    <a class="btn btn--primary" href="[PAPER_URL]" onclick="sa_event('click_paper')">
+      <i class="fas fa-file-alt"></i> Paper
+    </a>
+    <a class="btn" href="https://github.com/anishhdiwan/geometric-perspective" onclick="sa_event('click_code')">
+      <i class="fab fa-github"></i> Code
+    </a>
+    <a class="btn" href="theory.html" onclick="sa_event('click_theory')">
+      <i class="fas fa-square-root-variable"></i> Theory
+    </a>
+    <a class="btn" href="#cite">
+      <i class="fas fa-quote-right"></i> Cite
+    </a>
+  </div>
+
+  <!-- Static hero figure
+  <figure class="fig-img-pair">
+    <div class="fig-img-switch ap">
+      <img class="fig-img fig-img--light" style="width:50%;"
+           src="static/figures/hero.svg"
+           alt="Geometry of the IRL problem in reward and occupancy parameter space">
+      <img class="fig-img fig-img--dark" style="width:50%;"
+           src="static/figures/FIGURE_light.svg"
+           alt="Geometry of the IRL problem in reward and occupancy parameter space">
+    </div>
+
+    <figcaption class="fig-caption-center ap">An illustration of the geometry of the IRL problem showing the Lagrangian dual $\mathcal{G}(\theta)$ in reward parameter space, the <span style="color:#DF1659;">vanilla gradient</span>, the ideal <span style="color:#9B59B6;">one-step optimisation direction</span>, and our <span style="color:#1E90FF;">integral FIM-preconditioned gradient</span> (function-space update) $\delta^{(i)}$. The vanilla gradient is normal to the contour of $\mathcal{G}(\theta)$ and potentially leads to poor reward updates. In contrast, the function-space update considers the geometry along the e-geodesic in occupancy space, leading to geometry-aware reward updates.</figcaption>
+  </figure>
+  -->
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Θ-space, Φ-space and the two-state problem
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ap" id="fig-theta-space" data-always="dual grads" data-theta="-0.4,0.9" data-g-label>
+    <figcaption class="fig-caption-center ap">An illustration of the geometry of the IRL problem in the two-state MDP, showing the Lagrangian dual $\mathcal{G}(\theta)$ in reward parameter space, the <span style="color:var(--fig-grad);">vanilla gradient</span>, the ideal <span style="color:var(--fig-natF);">one-step optimisation direction</span>, and our <span style="color:var(--fig-natH);">integral FIM-preconditioned gradient</span> (function-space update) $\delta^{(i)}$. The vanilla gradient is normal to the contour of $\mathcal{G}(\theta)$ and potentially leads to poor reward updates. In contrast, the function-space update considers the geometry along the e-geodesic in occupancy space, leading to geometry-aware reward updates.</figcaption>
+  </figure>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       TL;DR
+       ═══════════════════════════════════════════════════════ -->
+  <p class="tldr ap">
+    <strong>TL;DR</strong>&ensp;IRL can be decoupled into a policy-side and a reward-side optimization problem, where the policy objective is to minimize the KL divergence to the expert and the reward objective is to minimize the IRL problem's Lagrangian dual $\mathcal{G}(\theta)$. The reward problem is classically solved with gradient descent, which is slow. We instead show that it can be easily solved with natural gradient descent. Our key insight is that the natural gradient of the Lagrangian dual is easily computable just as a convex interpolation of the previous reward and an empirical estimate of the optimal reward (i.e. no need to estimate, compute, or invert any FIM). We show that this update is equivalent to mirror descent (MD), and policy search over this reward is approximate entropic MD with bounded errors in the trust-region setting.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       ABSTRACT
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="abstract" class="section-label ap">Abstract</h2>
+
+  <div class="prose">
+    <p class="ap">
+    Inverse Reinforcement Learning (IRL) is classically solved using Lagrangian optimisation, by jointly optimising a primal-dual problem with gradient descent to obtain the optimal reward function parameters and corresponding optimal policy. While this algorithmic view of IRL has been highly influential, gradient-based reward updates only paint a partial picture, largely ignoring the geometry of the problem in occupancy space. In this paper, we present an occupancy-space view of reward updates in IRL. We leverage the insight that both the optimal solution and its geometry in occupancy space are known, and show that the geometry along the e-geodesic (straight line in occupancy space) toward the optimal occupancy directly affects the gradient of the IRL dual problem in reward parameter space. This perspective naturally suggests preconditioning the dual gradient with the average Fisher information along the occupancy trajectory. We show that this preconditioned gradient is just a convex interpolation of the old reward and a new target reward, yielding efficient natural-gradient-style updates with little additional computational overhead. We then analyse these occupancy-space reward updates from a Mirror Descent (MD) perspective, and show that policy search over the resulting rewards induces approximate entropic MD on the policy. Finally, we conclude with convergence results of such geometry-aware IRL algorithms.
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       KEY RESULTS
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="key-results" class="section-label ap">Key Results</h2>
+
+    <figure class="fig-img-pair">
+    <div class="fig-img-switch ap">
+      <img class="fig-img fig-img--light" style="width:90%;"
+           src="static/figures/dual_geometry.svg"
+           alt="Vanilla, natural, and integral FIM-preconditioned gradients in a gridworld IRL task">
+      <img class="fig-img fig-img--dark" style="width:90%;"
+           src="static/figures/dual_geometry_light.svg"
+           alt="Vanilla, natural, and integral FIM-preconditioned gradients in a gridworld IRL task">
+    </div>
+
+    <figcaption class="fig-caption-center ap">The vanilla gradient $\nabla_{\theta}\mathcal{G}$, the natural gradient $( F(\phi) )^{-1} \nabla_{\theta} \mathcal{G}$, and our integral FIM-preconditioned gradient $\delta^{(i)} = \beta ( H^{(i)} )^{-1} \nabla_{\theta} \mathcal{G}$ in a gridworld IRL task. The functional update is geometry-aware and often aligns with the natural gradient, while being much cheaper to compute.</figcaption>
+  </figure>
+
+  <p class="ap">
+    We are interested in the specific problem setting of entropy-regularized reverse-KL divergence minimisation between the expert's and agent's occupancy measures. In this setting, we start with the following observation:
+  </p>
+  <p class="hl-block ap" style="font-style: italic;">
+    The optimal solution to the IRL problem admits an explicit characterization in the space of occupancy measures. An approximation of this optimal occupancy ($\rho_{\hat{\pi}}$) <strong>is known</strong> based on the current reward function. Reward updates in IRL can be seen as facilitating $\rho_\pi \rightarrow \rho_{\hat{\pi}}$.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Target Occupancy</div>
+    <em>Given the optimal reward function $r^{\star} = \beta \log \left( \nicefrac{\rho_{E}(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})} \right)$ and the current reward iterate $r^{(i)}$, an approximation of the optimal occupancy can be derived as:</em>
+    \begin{align}
+        \rho_{\hat{\pi}}(\mathbf{s}, \mathbf{a}) \propto \exp{\left( \log \rho_{E}(\mathbf{s},\mathbf{a}) - \frac{1}{\beta} r^{(i)} \right)} &= \exp{\left( \left(\phi_{E} - \frac{\theta^{(i)}}{\beta}\right)^\intercal \psi(\mathbf{s}, \mathbf{a}) \right)} = \exp{\left(\hat{\phi}^\intercal \psi(\mathbf{s}, \mathbf{a}) \right)} \nonumber \\
+        &\textit{where,} \quad \hat{\phi} = \left(\phi_{E} - \frac{\theta^{(i)}}{\beta}\right) \tag{3}
+    \end{align}
+    <em>Here, $\hat{\phi}$ is the natural parameter of $\rho_{\hat{\pi}}$ and the optimisation target in $\Phi$ space. This directly implies that the reward function is linear in features as $r^{(i)} = \theta^{(i) \intercal} \psi(\mathbf{s}, \mathbf{a})$.</em>
+  </div>
+
+  <p class="ap">
+    Below, we show that moving towards this target in occupancy space is the same as taking a natural-gradient-style step on the Lagrangian dual $\mathcal{G}(\theta)$. We show that this natural gradient is cheap to compute as it is just an interpolation of the old reward and a new estimate of the optimal reward, with no Fisher information matrix to compute or invert.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Lemma 3.8 (Informal)</div>
+    <em>Let $F(\phi) = \underset{\rho_{\phi}}{\text{Cov}}[\psi(\mathbf{s}, \mathbf{a})]$ be the Fisher Information Matrix of $\rho_{\phi}$. For $\tau \in [0,1]$, let $\phi^{(i)}(\tau) \triangleq \hat{\phi} + \tau (\phi_{\rho^{(i)}} - \hat{\phi})$ be the optimisation trajectory in $\Phi$-space (straight line between $\phi_{\rho^{(i)}}$ and $\hat{\phi}$), and $H^{(i)} \triangleq \int_0^1 F(\phi^{(i)}(\tau)) d\tau$ be an integral of the FIM over $\phi^{(i)} (\tau)$. Then,</em>
+    \begin{align}
+      \beta \left( \phi_{\rho^{(i)}} - \hat{\phi} \right) &= \beta \left( H^{(i)} \right)^{-1} \nabla_{\theta} \mathcal{G} && \eqnote{(natural gradient)} \tag{4} \\
+      &= \theta^{(i)} - \beta \log \left(\nicefrac{\rho_E}{\rho_{\pi^{(i)}}}\right) && \eqnote{(interpolation of empirical estimates)}
+    \end{align}
+  </div>
+
+  <p class="ap">
+    Next, we show why this simple update works so well. It is mirror descent on the dual $\mathcal{G}(\theta)$, so each step stays close to the previous reward, with closeness measured by the geometry of occupancy space instead of plain Euclidean distance.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Theorem 3.9 (Reward-MD, Informal)</div>
+    <em>Let $\delta^{(i)} = \theta^{(i)} - \beta \log \left(\nicefrac{\rho_E}{\rho_{\pi^{(i)}}}\right)$ be the scaled $\Phi$-space update direction. The reward update $\theta^{(i+1)} = \theta^{(i)} - \epsilon \delta^{(i)}$ is equivalent to mirror descent with a time-varying, squared Mahalanobis proximal term</em>
+    \begin{align}
+      \theta^{(i+1)} = \theta^{(i)} - \epsilon \delta^{(i)} &= \underset{\theta}{\arg \min} \left[ \left< \nabla_{\theta} \mathcal{G}(\theta^{(i)}), \theta \right> + \underbrace{\frac{1}{2 \epsilon \beta} \left\lVert \theta - \theta^{(i)} \right\rVert_{H^{(i)}}^2}_{\text{prox. term}} \right]
+    \end{align}
+  </div>
+
+  <p class="ap">
+    Finally, we show that optimising the policy on these rewards is also (approximately) entropic mirror descent on the IRL objective $\mathcal{J}$. We bound the error to be the KL divergence between policy iterates, which is naturally small for trust-region policy optimization methods (e.g. <a href="https://anishhdiwan.github.io/trust-region-irl/">Trust Region IRL</a>).
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Theorem 4.7 (Policy-MD, Informal)</div>
+    <em>A mirror descent update on the IRL objective $\mathcal{J}(\rho_{\pi}(\mathbf{s},\mathbf{a}))$ under entropy regularization is equivalent to the following max-ent policy update</em>
+    \begin{align}
+      \rho_{\pi^{(i+1)}}(\mathbf{s},\mathbf{a}) &= \underset{\rho_{\pi}(\mathbf{s},\mathbf{a})}{\arg\max} \; \left[ \; \Big< \nabla_{\rho_{\pi}(\mathbf{s},\mathbf{a})} \mathcal{J}(\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})), \rho_{\pi}(\mathbf{s},\mathbf{a}) \Big> - \frac{1}{\epsilon} \text{KL} \left( \rho_{\pi}(\mathbf{s},\mathbf{a}) \left\lvert \right\rvert \rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) \right) \;\right] \\
+      &\equiv \underset{\pi(\mathbf{a}|\mathbf{s})}{\arg \max} \; \mathbb{E}_{\rho_{\pi}(\mathbf{s})} \left[ H(\pi(\mathbf{a}|\mathbf{s})) + \mathbb{E}_\pi \left[ r^{(i)}(\mathbf{s},\mathbf{a}) - \epsilon \delta^{(i)} \right] \right] - \mathcal{K}
+    \end{align}
+    <em>where the error $\mathcal{K}$ is bounded by the reverse KL divergence to the previous policy iterate (typically already enforced in trust-region methods).</em>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       CITATION
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="cite" class="section-label ap">Citation</h2>
+
+  <pre class="ap">@inproceedings{diwan2026geometric,
+  title     = {A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning},
+  author    = {Diwan, Anish and Peters, Jan and Arenz, Oleg},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</pre>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="site-footer ap">
+    <p>
+      Correspondence:
+      <a href="mailto:anish.diwan@robot-learning.de">anish.diwan@robot-learning.de</a>
+      &ensp;&middot;&ensp; NeurIPS 2026
+    </p>
+  </footer>
+
+</div><!-- /page -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════ -->
+<!-- Interactive figure (shared with theory.html) -->
+<script src="dynamic/figures/two-state-mdp.js?v=1"></script>
+<script src="dynamic/figures/plot-box.js?v=1"></script>
+<script src="dynamic/figures/two-state-irl.js?v=1"></script>
+<script src="dynamic/figures/theta-space.js?v=1"></script>
+
+<script>
+  // Scroll-triggered fade-in
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.ap').forEach((el, i) => {
+    el.style.transitionDelay = `${Math.min(i * 0.035, 0.28)}s`;
+    io.observe(el);
+  });
+
+  // Dark-mode toggle — persists across pages via localStorage
+  const btn  = document.getElementById('theme-btn');
+  const icon = btn.querySelector('i');
+  if (document.documentElement.classList.contains('dark')) {
+    icon.className = 'fas fa-sun';
+  }
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('trirl-theme', dark ? 'dark' : 'light');
+    icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+  });
+
+  // Sticky section nav — auto-built from every h2.section-label on the page.
+  // Add a new h2.section-label anywhere and it will appear here automatically.
+  const stickyNav = document.createElement('nav');
+  stickyNav.className = 'sticky-nav';
+
+  document.querySelectorAll('h2.section-label').forEach(h => {
+    if (!h.id) {
+      h.id = h.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    }
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.className = 'sticky-nav__link';
+    a.textContent = h.textContent.trim();
+    stickyNav.appendChild(a);
+  });
+
+  // Link to the separate theory page
+  const theoryLink = document.createElement('a');
+  theoryLink.href = 'theory.html';
+  theoryLink.className = 'sticky-nav__link';
+  theoryLink.textContent = 'Theory';
+  theoryLink.target = '_blank';   // other page → new tab
+  theoryLink.rel = 'noopener';
+  theoryLink.addEventListener('click', () => sa_event('click_theory'));
+  // Theory goes just before Citation, which stays last
+  const citeLink = stickyNav.querySelector('a[href="#cite"]');
+  stickyNav.insertBefore(theoryLink, citeLink);  // appends if no Citation link
+
+  const sep = document.createElement('span');
+  sep.className = 'sticky-nav__sep';
+  stickyNav.appendChild(sep);
+
+  btn.parentNode.removeChild(btn);
+  stickyNav.appendChild(btn);
+
+  document.body.appendChild(stickyNav);
+
+  // Links to another page (buttons, text links, nav) open in a new tab.
+  // Same-page anchors (#...), mailto: and the "← Back" link are left as is.
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href.startsWith('#') || href.startsWith('mailto:') || a.classList.contains('nav-back')) return;
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+</script>
+
+</body>
+</html>

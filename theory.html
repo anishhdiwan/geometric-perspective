@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theory | A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning | NeurIPS 2026</title>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SEO & SOCIAL SHARING
+       ═══════════════════════════════════════════════════════ -->
+  <meta name="description"
+        content="Detailed theory behind A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning (NeurIPS 2026).">
+  <meta name="author"
+        content="Anish Diwan, Jan Peters, Oleg Arenz">
+
+  <link rel="icon" href="static/figures/neurips-navbar-logo.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="static/figures/neurips-navbar-logo.svg" type="image/svg">
+  <link rel="apple-touch-icon" href="static/figures/neurips-navbar-logo.svg">
+
+  <link rel="canonical" href="https://anishhdiwan.github.io/geometric-perspective/theory.html">
+
+  <meta property="og:type"        content="article">
+  <meta property="og:title"       content="Theory | A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning">
+  <meta property="og:description" content="This is a detailed, technical write-up explaining my recent paper on some interesting geometric perspectives on reward updates in inverse reinforcement learning.">
+  <meta property="og:url"         content="https://anishhdiwan.github.io/geometric-perspective/theory.html">
+  <meta property="og:image"       content="https://anishhdiwan.github.io/geometric-perspective/static/og.png">
+
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:image"       content="https://anishhdiwan.github.io/geometric-perspective/static/og.png">
+  <meta name="twitter:title"       content="Theory | A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning">
+  <meta name="twitter:description" content="This is a detailed, technical write-up explaining my recent paper on some interesting geometric perspectives on reward updates in inverse reinforcement learning.">
+
+  <!-- FONT — see HOW_TO_EDIT.md §2 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@400;500;600;700;800;900&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+        rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Site styles — shared with index.html -->
+  <link rel="stylesheet" href="style.css?v=5">
+
+  <!-- Must run in <head> to avoid flash of wrong theme on load.
+       Same storage key as index.html, so the theme carries over. -->
+  <script>
+    (function () {
+      var stored = localStorage.getItem('trirl-theme');
+      if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+    <!-- math rendering — same config as index.html -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          macros: {
+            nicefrac: ['{}^{#1}\\!/\\!{}_{#2}', 2],
+            // equation side-note; colour set by .eq-note in style.css (theme-aware)
+            eqnote: ['\\class{eq-note}{\\small\\text{#1}}', 1]
+          }
+        },
+        // MathJax has no LaTeX 'HTML' colour model, so rewrite
+        // \textcolor[HTML]{1E90FF} (also \color, \colorbox) to the
+        // equivalent [RGB]{30,144,255} before parsing.
+        startup: {
+          ready() {
+            MathJax.startup.defaultReady();
+            MathJax.startup.input.forEach(jax => {
+              if (jax.name !== 'TeX') return;
+              jax.preFilters.add(({math}) => {
+                math.math = math.math.replace(
+                  /\\(textcolor|color|colorbox)\s*\[HTML\]\s*\{\s*([0-9A-Fa-f]{6})\s*\}/g,
+                  (_, cmd, hex) => '\\' + cmd + '[RGB]{' +
+                    [0, 2, 4].map(i => parseInt(hex.substr(i, 2), 16)).join(',') + '}');
+              });
+            });
+          }
+        }
+      };
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+
+  <!-- 100% privacy-first analytics -->
+  <script>window.sa_event=window.sa_event||function(){var a=[].slice.call(arguments);window.sa_event.q?window.sa_event.q.push(a):window.sa_event.q=[a]};</script>
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
+</head>
+<body class="theory">
+<div class="page">
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION BAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="site-nav ap">
+    <a href="index.html" class="nav-back">← Back to main page</a>
+    <button id="theme-btn" class="theme-btn" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE HEADER
+       ═══════════════════════════════════════════════════════ -->
+  <span class="venue-tag" aria-label="NeurIPS 2026">
+    <img src="static/figures/NeurIPS-logo.svg" alt="NeurIPS" class="venue-tag__logo">
+    <span class="venue-tag__meta">2026</span>
+  </span>
+
+  <h1 class="site-title ap">
+    <span class="title-accent">An Interactive Guide to</span><br>
+    <span class="site-title__sub">"A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning"</span>
+  </h1>
+
+  <p class="authors ap">
+    <a href="https://anishhdiwan.github.io/">Anish Diwan</a>
+    &middot; <a href="https://www.ias.tu-darmstadt.de/Team/JanPeters">Jan Peters</a>
+    &middot; <a href="https://www.ias.informatik.tu-darmstadt.de/Team/OlegArenz">Oleg Arenz</a>
+  </p>
+
+  <p class="affils ap">Technical University of Darmstadt &middot; Robotics Institute Germany (RIG)
+    &middot; hessian.AI &middot; German Research Center for AI (DFKI)
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BUTTONS
+       ═══════════════════════════════════════════════════════ -->
+  <div class="btns ap">
+    <a class="btn btn--primary" href="[PAPER_URL]" onclick="sa_event('click_paper')">
+      <i class="fas fa-file-alt"></i> Paper
+    </a>
+    <a class="btn" href="https://github.com/anishhdiwan/geometric-perspective">
+      <i class="fab fa-github"></i> Code
+    </a>
+    <a class="btn" href="index.html">
+      <i class="fas fa-house"></i> Main Page
+    </a>
+    <a class="btn" href="#cite">
+      <i class="fas fa-quote-right"></i> Cite
+    </a>
+  </div>
+
+  <span class="human-badge ap">Human Written</span>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       TL;DR
+       ═══════════════════════════════════════════════════════ -->
+  <p class="tldr ap">
+    <strong>Summary:</strong>&ensp; This is a detailed write-up explaining my recent paper on some interesting geometric perspectives on reward updates in inverse reinforcement learning. The key takeaways of the paper are listed <a href="index.html#key-results">here</a>. In this write-up, we will instead take a much more low-level approach, walking through the background of the paper and the mathematical details of some proofs and assumptions. My goal here is to build intuition on the quantities and properties explored in the paper, rather than to just list the key results. Though this is a low-level explainer, I still assume some familiarity with <a href="https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">reinforcement learning</a>, and the <a href="https://www.youtube.com/playlist?list=PLXsmhnDvpjORzPelSDs0LSDrfJcqyLlZc">basics of probability and optimization</a>. We will start with some background on RL and inverse RL, then move on to the specific problem setting of this paper, discuss an empirically strong alternative to gradient descent reward updates, and then spend the majority of this write-up exploring why this update is so strong. PS: many of the figures on this page are interactive!
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       TABLE OF CONTENTS
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="toc ap" id="toc" aria-label="Contents">
+    <div class="toc__title">Contents</div>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       BACKGROUND
+       ═══════════════════════════════════════════════════════ -->
+  <h2 class="section-label ap">Background</h2>
+
+  <h3 class="sub-label ap" id="preliminaries">Preliminaries</h3>
+
+  <p class="ap">
+    <strong>Notation.</strong> We define $\Delta_X$ as the set of probabilities over some set $X$ and $\Delta_X^Y$ as
+    the set of conditional probabilities over a set $X$ conditioned on the set $Y$ \footnote{E.g.: A policy assigns a distribution over actions to every state, so $\pi \in \Delta_{\mathcal{A}}^{\mathcal{S}}$.}. For two vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^d$, we denote
+    $\langle \mathbf{x}, \mathbf{y} \rangle$ as their inner product. For some function $f$, we denote $f^{(i)}$ for the function at iteration $(i)$ of the algorithm.
+  </p>
+
+  <p class="ap">
+    <strong>Preliminaries.</strong> (Inverse) Reinforcement Learning is typically studied under the framework of a Markov Decision Process (MDP) \cite{sutton2018reinforcement}. An MDP is a description of the agent's environment and quantifies the set of possible configurations of the agent (called states), the set of possible actions that the agent can take, and the effect of taking an action in a state. It also describes the scalar reward the agent receives on taking an action. In this paper, we define the MDP by a tuple $(\mathcal{S}, \mathcal{A}, \mu_0, \mathcal{P}, r, \gamma)$,
+    where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $\mu_0$ is the initial state distribution \footnote{The distribution over states in which the agent is likely to start the episode.},
+    $\mathcal{P} \in \Delta_{\mathcal{S}}^{\mathcal{S} \times \mathcal{A}}$ represents the transition dynamics,
+    $r \in \mathbb{R}^{\mathcal{S} \times \mathcal{A}}$ is the (unknown) reward function, and $\gamma \in [0,1)$ is the discount factor.
+  </p>
+
+  <p class="ap">
+    Below is the MDP of a simple toy task with two states and two actions per state. Transitions are deterministic and rewards are labelled on the respective transition paths. Staying in state 0 gives $r = 1$,
+    staying in state 1 gives $r = 2$ and moving between states gives no reward. Here, the optimal policy is computed using value iteration. This is the famous two-state MDP from \cite{kakade2001natural} and we will use it as a working example throughout this write-up. <a href="#fig-two-state" class="fig-ref">You can interact with the MDP and its elements</a>. The feature function $\psi(\mathbf{s}, \mathbf{a})$ is a function mapping state-action pairs into a $d$-dimensional continuous feature space and we will clarify its role soon.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Two-state problem (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ts-fig ap" id="fig-two-state">
+    <div class="ifig__controls">
+      <span class="ifig__label">Highlight</span>
+      <button class="chip" data-aspect="feature"><span class="chip__dot"></span>Features</button>
+      <button class="chip" data-aspect="reward"><span class="chip__dot"></span>Rewards</button>
+      <button class="chip" data-aspect="policy"><span class="chip__dot"></span>Optimal policy</button>
+    </div>
+    <div class="ifig__canvas">
+      <svg viewBox="70 20 380 196" role="img"
+           aria-label="Two-state MDP: states 0 and 1, each with a self-loop and an edge to the other state"></svg>
+      <table class="ts-table"></table>
+    </div>
+    <figcaption>
+      <strong>The two-state problem</strong> \cite{kakade2001natural}.
+      Highlight each state's <span class="hl" data-aspect="feature">features</span> $\psi(\mathbf{s}, \mathbf{a})$,
+      its <span class="hl" data-aspect="reward">rewards</span>
+      or its <span class="hl" data-aspect="policy">optimal action</span>.
+      The optimal policy forgoes the immediate reward in state 0 to reach state 1 and stay there.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+    We will now introduce a quantity called the occupancy measure. Imagine executing a policy in an MDP. Since the policy and transition dynamics are potentially stochastic, the agent may take a different path through the MDP in each rollout. Now imagine creating a dataset of many such policy rollouts. At any given time $t$, the agent might therefore be in different states $\mathbf{s}_t$ and take different actions $\mathbf{a}_t$ across these rollouts. For some time step $t>0$, the state distribution $\mu_{t}^\pi(\mathbf{s}')$ defines the probability of the agent being in a given state $\mathbf{s}'$ at time step $t$.
+    The occupancy measure $\rho_{\pi}(\mathbf{s},\mathbf{a})$ under a policy $\pi(\mathbf{a} \vert \mathbf{s})$ is the normalized, discounted sum of these state distributions, and also accounts for the likelihood $\pi(\mathbf{a} \vert \mathbf{s})$ of taking the action $\mathbf{a}$ in the state $\mathbf{s}$. The discounting makes it so that the probability is influenced more by early occurrences of that state-action pair than by ones far in the future. We define the normalized discounted occupancy measure
+    $\rho_{\pi}(\mathbf{s},\mathbf{a}) = (1 - \gamma) \pi(\mathbf{a} \vert \mathbf{s}) \sum_{t=0}^\infty \gamma^t \mu^\pi_t(\mathbf{s})$,
+    where $\mu_{t}^\pi(\mathbf{s}')= \sum_{\mathbf{s}} \mu^\pi_{t-1}(\mathbf{s}) \sum_{\mathbf{a}} \pi(\mathbf{a} \vert \mathbf{s})\mathcal{P}(\mathbf{s}' \vert \mathbf{s}, \mathbf{a})$
+    is the state distribution for $t>0$, with $\mu^\pi_0(\mathbf{s})=\mu_0(\mathbf{s})$ (initial state distribution).
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Occupancy measure of the two-state problem (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig oc-fig ap" id="fig-occupancy" data-basics>
+    <div class="ifig__canvas">
+      <div class="oc-body" role="group"
+           aria-label="Occupancy measure of the two-state MDP: a policy pad (one point sets the policy of both states), rollouts of the policy, and a two by two grid of states by actions, shaded by occupancy"></div>
+    </div>
+    <figcaption>
+      <strong>The occupancy measure of a policy in the two-state problem.</strong>
+      Drag the point to set the policy. The horizontal axis is $\pi(\mathbf{a} \vert \mathbf{s}=0)$ and the vertical axis is $\pi(\mathbf{a} \vert \mathbf{s}=1)$. Notice the rollouts changing as you change the policy.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+    In this paper, we define $\Pi = \Delta_{\mathcal{A}}^{\mathcal{S}}$ as the set of all stationary stochastic policies and use an expectation with respect to a policy $\pi \in \Pi$ to denote an expectation with respect to the trajectory it generates;
+    $\mathbb{E}_{\pi}[r(\mathbf{s}, \mathbf{a})] \triangleq \mathbb{E}_{(\mathbf{s}_0\sim \mu_0, \mathbf{a}_t \sim \pi, \mathbf{s}_{t+1} \sim \mathcal{P})} [\sum_{t=0}^\infty \gamma^{t} r(\mathbf{s}_t, \mathbf{a}_t)]$.
+    We also refer to the (unknown) expert policy as $\pi_E$ and its occupancy measure as $\rho_{E}(\mathbf{s},\mathbf{a})$.
+  </p>
+
+  <h3 class="sub-label ap">Entropy-Regularized Inverse RL</h3>
+
+  <p class="ap">
+    Designing good reward functions is a fundamental challenge in reinforcement learning. Many seemingly simple tasks (like walking) are challenging enough that reward design takes considerable human effort&mdash;with other complicated tasks like tool-use being nearly impossible to describe with a closed-form reward. Such tasks can instead be solved by leveraging human demonstrations. Given a dataset of demonstrations, and assuming that the demonstrator (also called the expert) is executing a policy $\pi_E$, inverse RL is the problem of inferring the reward function being implicitly optimized by $\pi_E$. We assume that the recovered reward function is such that the demonstrator is optimal on it.
+  </p>
+
+  <p class="ap">
+    This problem is classically formulated as the problem of matching probability distributions. Specifically, IRL aims to learn a reward function such that the optimal policy for this reward function (under a given MDP) induces some occupancy measure $\rho_{\pi}(\mathbf{s},\mathbf{a})$ which closely matches the occupancy measure $\rho_{E}(\mathbf{s},\mathbf{a})$ induced by the expert. Intuitively, this means that we want our learnt policy to visit the same state-action pairs as the expert while also recovering a reward function on which this policy is optimal. Hence, solving the IRL problem gives you both a reward function and a policy.
+  </p>
+
+  <p class="ap">
+    <strong>So, how do we measure the closeness of two occupancy measures?</strong> A natural way to measure the closeness of two distributions is the <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL divergence</a>,
+    $\mathrm{KL}(\rho_\pi \,\|\, \rho_E) = \mathbb{E}_{\rho_{\pi}(\mathbf{s},\mathbf{a})} [\log \nicefrac{\rho_{\pi}(\mathbf{s},\mathbf{a})}{\rho_E(\mathbf{s},\mathbf{a})}]$.
+    In this paper, we specifically use the reverse KL divergence.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Matching the expert's occupancy (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig oc-fig om-fig ap" id="fig-occupancy-match" data-basics>
+    <div class="ifig__canvas">
+      <div class="om-body" role="group"
+           aria-label="Occupancy matching: a policy pad and bars comparing the agent's occupancy with the expert's, with their KL divergence"></div>
+    </div>
+    <figcaption>
+      <strong>Matching the expert's occupancy.</strong>
+      Try to find a policy whose occupancy measure matches the expert's. Here, the light bars are the expert's occupancy $\rho_E(\mathbf{s}, \mathbf{a})$, and the dark bars are $\rho_\pi(\mathbf{s}, \mathbf{a})$ for the policy you set with the point on the left. <em>Hint: think about the optimal policy of the two-state MDP</em>.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+    Unfortunately, the IRL problem is ill-posed. A policy can be optimal under multiple reward functions. Conversely, several different policies can be optimal under the same reward function \cite{ng1999policy,ziebart2008maximum,ziebart2010modeling}. Given the current problem formulation, we could end up with multiple solutions for our reward function. Some of these might be trivial (such as all zero rewards), while there might also be several equally good-looking reward functions that might otherwise be very difficult to contradistinguish. A typical way to solve this issue is to simultaneously maximise the causal entropy of the policy. This gives us a policy that closely matches the expert while also being least committal in its approach to decision-making.
+  </p>
+
+  <h3 class="sub-label ap">MaxEnt IRL by Reverse KL Divergence Minimization</h3>
+
+  <p class="ap">
+    We are now ready to move on to the specific variant of IRL pertaining to this paper. With the inclusion of the entropy objective, our final IRL optimization problem becomes (constraints omitted)
+    $$\mathcal{J}(\pi(\mathbf{a}|\mathbf{s})) = \mathbb{E}_{\rho_{\pi}(\mathbf{s})} \left[ H(\pi(\mathbf{a}|\mathbf{s})) \right] - \beta\, \mathbb{E}_{\rho_{\pi}(\mathbf{s},\mathbf{a})} \left[ \log \frac{\rho_{\pi}(\mathbf{s},\mathbf{a})}{\rho_{E}(\mathbf{s},\mathbf{a})} \right] \tag{2}$$
+    where $\beta$ trades off between entropy regularization and the objective of matching the expert's occupancy. It's worth noting some useful facts about this problem setting. Some of the definitions for the following terms are given <a href="#convexity">here</a>.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label"><span class="thm-block__num">(i)</span> Entropy Concavity</div>
+    <p>
+      The expected entropy $\mathbb{E}_{\rho_\pi(\mathbf{s})}[H(\pi(\mathbf{a}|\mathbf{s}))]$ is concave in $\rho_\pi(\mathbf{s}, \mathbf{a})$ \cite{ho2016generative,neu2017unified}.
+    </p>
+  </div>
+
+  <div class="thm-block ap" id="fact-convexity">
+    <div class="thm-block__label"><span class="thm-block__num">(ii)</span> Convexity</div>
+    <p>
+      The KL term $\mathbb{E}_{\rho_\pi(\mathbf{s},\mathbf{a})}[\log \nicefrac{\rho_\pi(\mathbf{s},\mathbf{a})}{\rho_E(\mathbf{s},\mathbf{a})}]$ is convex in $\rho_\pi(\mathbf{s}, \mathbf{a})$,
+    so $\mathcal{J}$ is concave in the occupancy measure\footnote{$f$ is convex $\iff$ $-f$ is concave.} and maximizing it is a convex optimization problem \cite{achiam2017constrained,neu2017unified,geist2019theory}.
+    $\mathcal{J}$ is also differentiable wherever $\rho_\pi(\mathbf{s}, \mathbf{a}) > 0$, since both terms are sums of smooth $\mathbf{x} \log \mathbf{x}$ terms.
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Concavity of the entropy and the negative KL (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig cv-fig ap" id="fig-concavity" data-basics>
+    <div class="ifig__canvas cv-layout">
+      <div class="cv-controls"></div>
+      <div class="cv-body"></div>
+    </div>
+    <figcaption>
+      <strong>Concavity of the expected entropy and the negative KL divergence.</strong>
+      Here, we visually demonstrate the concavity of the two terms of $\mathcal{J}$ in the occupancy $\rho_\pi(\mathbf{s}, \mathbf{a})$. A visualization problem is that in the two-state MDP, the occupancy $\rho_\pi(\mathbf{s}, \mathbf{a})$ is 4-dimensional and neither term is easily plottable. Instead, we use the fact that a line between any two occupancies is a convex set. So, showing concavity along every such line is equivalent to showing concavity in the whole space of occupancies. <br><br>
+
+      Imagine having two policies $\pi_A$ and $\pi_B$ (you can set these by dragging the points on the left) with occupancy measures $\rho_{\pi_A}$ and $\rho_{\pi_B}$. Now imagine an occupancy measure $\rho_\pi(t)$ on a line drawn between these two occupancies, $\rho_\pi = (1-t)\, \rho_{\pi_A} + t\, \rho_{\pi_B}$ for $t \in [0, 1]$. You can vary $\rho_\pi(t)$ by varying $t$. We then plot the expected entropy and negative KL divergence for a given $\rho_\pi(t)$. You can notice that for all policies and all segments, both functions lie on or above the chord between them (shaded), i.e. both terms of Eq. (2) are concave \footnote{$f(\alpha \mathbf{x} + (1-\alpha) \mathbf{y}) \geq \alpha f(\mathbf{x}) + (1-\alpha) f(\mathbf{y})$}.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+    This optimization problem is typically solved using <a href="https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf">Lagrangian optimisation</a>, by formulating its Lagrangian $\mathcal{L}(\pi, r)$,
+    deriving the Lagrangian dual $\mathcal{G}(r)$, and obtaining the optimal solution by setting derivatives to zero. In the context of the Lagrangian we also note the following.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label"><span class="thm-block__num">(iii)</span> Strong Duality</div>
+    <p>
+    Since we have a concave objective and only linear constraints, Slater's conditions hold. So the problem has strong duality. i.e. the optimal values of the primal and its
+    Lagrangian dual coincide, and an optimal Lagrangian multiplier exists.
+    </p>
+  </div>
+
+  <!-- <div class="thm-block ap">
+    <div class="thm-block__label"><span class="thm-block__num">(iv)</span> Policy–Occupancy Relationship</div>
+    <p>
+      A policy and its occupancy measure are in one-to-one correspondence, $\rho_\pi(\mathbf{s}, \mathbf{a}) = \pi(\mathbf{a}|\mathbf{s})\, \rho_\pi(\mathbf{s})$
+    \cite{ho2016generative,syed2008apprenticeship}, so we can equivalently optimize over $\rho_\pi(\mathbf{s}, \mathbf{a})$ and recover the policy by marginalization,
+    $\pi(\mathbf{a}|\mathbf{s}) = \nicefrac{\rho_\pi(\mathbf{s},\mathbf{a})}{\sum_{\mathbf{a}'} \rho_\pi(\mathbf{s},\mathbf{a}')}$.
+    </p>
+  </div> -->
+
+  <p class="ap">
+    \cite{arenz2016optimal} derive this Lagrangian and give the solutions for the optimal policy and reward function, along with the Lagrangian dual.
+    The full derivation, in our notation, is given in the <a href="#derivation-maxent-irl">appendix</a>.
+    The optimal policy, the optimal reward, and the Lagrangian dual of the IRL problem are
+    $$\begin{aligned}
+      \pi^\star(\mathbf{a}|\mathbf{s}) &= \exp\big( Q^\star(\mathbf{s},\mathbf{a}) - V^\star(\mathbf{s}) \big), \\
+      r^\star(\mathbf{s},\mathbf{a}) &= \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})}, \\
+      \mathcal{G}(r) &= (1-\gamma)\, \mathbb{E}_{\mu_0(\mathbf{s})} \big[ V(\mathbf{s}) \big] + \beta \log \mathbb{E}_{\rho_E(\mathbf{s},\mathbf{a})} \big[ \exp\big(-r(\mathbf{s},\mathbf{a})/\beta\big) \big],
+    \end{aligned}$$
+    where $Q^\star(\mathbf{s},\mathbf{a}) = r^\star(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} [ V^\star(\mathbf{s}') ]$ and $V^\star(\mathbf{s}) = \log \sum_{\mathbf{a}} \exp(Q^\star(\mathbf{s},\mathbf{a}))$ are the soft value functions at $r^\star$,
+    and the dual is minimized over $r$.
+    It can be shown that, in the limit $\beta \rightarrow \infty$, the optimal policy and value functions are the same as for MCE-IRL \cite{ziebart2010modeling}.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       A GEOMETRIC PICTURE OF INVERSE REINFORCEMENT LEARNING
+       ═══════════════════════════════════════════════════════ -->
+  <h2 class="section-label ap" id="param-spaces">A Geometric Picture of Inverse Reinforcement Learning</h2>
+
+  <p class="ap">
+    So far, we have introduced inverse reinforcement learning, briefly looked at entropy regularization, and worked through the problem setup and solutions of IRL by reverse KL divergence minimization. In this section, we will further analyse how the reward function and occupancy measure are connected in this variant of IRL. We will introduce some fundamental modelling assumptions, derive some interesting relationships, and conclude with an intuitive geometric picture that nicely sets up the main takeaways of this paper.
+  </p>
+
+  <p class="ap">
+    Recall that in the <a href="#preliminaries">preliminaries section</a>, we also introduced a feature function $\psi(\mathbf{s}, \mathbf{a})$ that maps a pair of state and action into a continuous vector space. Here, we contextualize $\psi(\mathbf{s}, \mathbf{a})$ as the sufficient statistic of an <a href="https://en.wikipedia.org/wiki/Exponential_family">exponential family distribution</a>. Intuitively, the occupancy measure then sees a state-action pair only through its features. Two pairs with the same features are always visited equally often, and knowing how much density the occupancy has for a feature describes the feature completely. This nicely sets up our main assumption.
+  </p>
+
+  <div class="thm-block ap" id="assumption-boltzmann">
+    <div class="thm-block__label">Assumption 3.1 (EF Occupancies)</div>
+    <p>
+      The expert and agent occupancies are exponential family distributions with energy functions that are linear in features $\psi(\mathbf{s}, \mathbf{a})$, such that
+      $\rho_E(\mathbf{s},\mathbf{a}) = Z^{-1}_{E} \exp\big( \phi_{E}^\intercal\, \psi(\mathbf{s}, \mathbf{a}) \big)$ and
+      $\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) = Z^{-1}_{\rho^{(i)}} \exp\big( \phi_{\rho^{(i)}}^\intercal\, \psi(\mathbf{s}, \mathbf{a}) \big)$,
+      where $\phi_E, \phi_\rho \in \Phi \triangleq \mathbb{R}^d$ are the natural parameters of the exponential family distribution and $Z_E, Z_{\rho^{(i)}}$ are the normalizing constants, e.g. $Z_E = \sum_{\mathbf{s},\mathbf{a}} \exp\big( \phi_{E}^\intercal\, \psi(\mathbf{s}, \mathbf{a}) \big)$.
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · The expert's occupancy as an exponential family distribution (static)
+       ═══════════════════════════════════════════════════════ -->
+  <!-- <figure class="ifig ed-fig ap" id="fig-expert-density">
+    <div class="ifig__canvas">
+      <div class="ed-body"></div>
+    </div>
+    <figcaption>
+      <strong>The expert's occupancy over each feature in the two-state problem.</strong>
+      Each stem is a state-action pair, placed at its feature value with height $\rho_E(\mathbf{s}, \mathbf{a})$.
+    </figcaption>
+  </figure> -->
+
+  <p class="ap">
+      This assumption nicely connects the two spaces of reward functions and occupancy measures. Recall that the optimal reward is $r^\star = \beta \log \nicefrac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})}$. Substituting both exponential family forms,
+      $$r^\star(\mathbf{s},\mathbf{a}) = \beta \big( \phi_E - \phi_{\rho^\star} \big)^\intercal \psi(\mathbf{s},\mathbf{a}) \;+\;\text{const.}$$
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Linear Rewards</div>
+    <p>
+      The optimal reward function of IRL is therefore a linear function of the features, with parameters $\theta^\star = \beta ( \phi_E - \phi_{\rho^\star} )$. Hence, when solving the reward-side IRL problem, it suffices to search over linear rewards,
+      $$r^{(i)}(\mathbf{s},\mathbf{a}) = \theta^{(i)\intercal} \psi(\mathbf{s},\mathbf{a}), \qquad \theta \in \Theta \triangleq \mathbb{R}^d.$$
+      Since the reward is fully defined by $\theta$, we can interchange $\mathcal{G}(r)$ and $\mathcal{G}(\theta)$.
+      We refer to $\Theta$ as the <em class="c-emph">reward parameter space</em> and $\Phi$ as the <em class="c-emph">occupancy parameter space</em>.
+    </p>
+  </div>
+
+  <p class="ap">
+      Now that we have identified the appropriate class of reward function (linear in $\psi$), we can further try to explore the relationship between reward parameters $\theta$ and the natural parameters \footnote{The natural parameters $\phi$ are the weights on the features in the exponent of the exponential family distribution, $\rho_\phi(\mathbf{s},\mathbf{a}) \propto \exp\big(\phi^\intercal \psi(\mathbf{s},\mathbf{a})\big)$. E.g.: for a Gaussian with mean $\mu$ and standard deviation $\sigma$, the natural parameters are $\big(\nicefrac{\mu}{\sigma^2},\, -\nicefrac{1}{2\sigma^2}\big)$, i.e. the weights of its features $(x, x^2)$.} of the occupancy measure $\phi$. We can easily show that for every reward parameter, there exists a unique occupancy parameter. Given a reward parameter $\theta^{(i)}$ we can define the reward $r^{(i)} = \theta^{(i)\intercal} \psi(\mathbf{s},\mathbf{a})$. Owing to the entropy regularization, it has exactly one soft optimal policy
+      $\pi^{(i)}(\mathbf{a}|\mathbf{s}) = \exp\big( Q^{(i)}(\mathbf{s},\mathbf{a}) - V^{(i)}(\mathbf{s}) \big)$.
+      This policy has a unique occupancy measure $\rho_{\pi^{(i)}}$, and by <a href="#assumption-boltzmann">Assumption 3.1</a> it is an exponential family distribution,
+      $$\log \rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) = \phi_{\rho^{(i)}}^\intercal \psi(\mathbf{s},\mathbf{a}) - \log Z_{\rho^{(i)}},$$
+      whose natural parameter is $\phi_{\rho^{(i)}}$. So, in summary, there is a one-to-one mapping between $\Theta$ and $\Phi$ spaces.
+  </p>
+
+  <p class="ap">
+      Now, we would also like to characterize the solution of IRL within this geometric picture. Before doing this, let's step back for a moment and list out all our results so far.
+  </p>
+
+  <div class="thm-block thm-block--summary ap">
+    <div class="thm-block__label">Summary</div>
+    <ol class="text-list">
+      <li>We are solving an IRL problem defined by the Lagrangian primal $\mathcal{L}(\pi, r)$ and the dual $\mathcal{G}(\theta)$. The primal needs to be maximized under the policy and the dual needs to be minimized under the reward function.</li>
+      <li>Under <a href="#assumption-boltzmann">Assumption 3.1</a>, we know that the reward function is linear in features as $r^{(i)}(\mathbf{s},\mathbf{a}) = \theta^{(i)\intercal} \psi(\mathbf{s},\mathbf{a})$</li>
+      <li>We know that owing to entropy regularization, each reward has one unique soft optimal policy and a unique occupancy.</li>
+      <li>We know that the optimal reward of IRL is $r^\star = \beta \log \nicefrac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})}$.</li>
+    </ol>
+    <p>
+       From this it follows that at any iteration $i$, for a reward defined by $\theta^{(i)}$ and the occupancy measure of its corresponding soft optimal policy $\rho_{\pi^{(i)}}$, we can get an approximation of the optimal reward as $\beta \log \nicefrac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}$. This approximately optimal reward is an estimate of the optimal reward function, obtained by naively assuming that our current policy is approximately optimal.
+    </p>
+  </div>
+
+  <p class="ap">
+    Given this approximately optimal reward, \cite{arenz2016optimal} construct an alternative update to the conventional gradient descent update in IRL (<a href="#result-dual-gradient">result 4</a>). Their update (which we call function-space update) does a linear interpolation
+    $$r^{(i+1)} = r^{(i)} - \epsilon\, \delta^{(i)}, \qquad \delta^{(i)} = r^{(i)} - \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}. \tag{1}$$
+    \cite{arenz2016optimal} showed that such interpolation style reward updates are empirically much more effective than just minimizing the Lagrangian dual $\mathcal{G}(\theta)$ with gradient descent. Below we replicate the convergence comparison from \cite{arenz2016optimal} on the two-state problem.
+  </p>
+
+  <p class="ap">
+    $$\begin{array}{cc}
+      \textbf{Functional Update} & \textbf{Vanilla Gradient Update} \\[2pt]
+      \theta^{(i+1)} = \theta^{(i)} - \epsilon\, \left( \theta^{(i)} -  \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})} \right)
+      &
+      \theta^{(i+1)} = \theta^{(i)} - \alpha \nabla_{\theta}\mathcal{G}
+    \end{array}$$
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Function-space updates vs gradient descent (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ap" id="fig-update-race">
+    <figcaption>
+      <strong>Convergence comparison of vanilla gradient descent and function-space reward updates.</strong>
+      Both methods start at $\theta^{(0)}$ (drag it in $\Theta$-space) and run for 40 iterations of
+      <span class="hl-grad">vanilla gradient descent</span> and of the <span class="hl-func">functional update</span>.
+      The right panel shows the suboptimality $\mathcal{G}(\theta^{(i)}) - \mathcal{G}(\theta^\star)$ on a log scale.
+      Since the two steps have different scales, each method has its own step size (initialized at their best values). The function-space update needs fewer iterations for most settings.
+    </figcaption>
+  </figure>
+
+  <div class="hl-block ap">
+    <p>
+      The main question left to answer is: <strong><em>Why do such function-space updates perform so well?</em></strong> This is the key motivation of our paper.
+    </p>
+  </div>
+
+  <p class="ap">
+    To answer this question, let us begin by characterizing the update in the geometric picture we built above. In the function-space update, we assumed that our current policy is approximately-optimal. Its occupancy measure can be used to construct an approximately optimal reward function. Consider optimizing this updated reward to get an occupancy $\rho_{\hat{\pi}}$. Plugging it in our optimality condition,
+    $$\rho_{\hat{\pi}}(\mathbf{s},\mathbf{a}) \propto \exp\Big( \log \rho_E(\mathbf{s},\mathbf{a}) - \frac{1}{\beta} r^{(i)}(\mathbf{s},\mathbf{a}) \Big)
+      = \exp\Big( \big( \phi_E - \tfrac{\theta^{(i)}}{\beta} \big)^\intercal \psi(\mathbf{s},\mathbf{a}) \Big)
+      = \exp\big( \hat{\phi}^\intercal \psi(\mathbf{s},\mathbf{a}) \big),
+      \quad \hat{\phi} = \phi_E - \frac{\theta^{(i)}}{\beta}. \tag{3}$$
+    The occupancy $\rho_{\hat{\pi}}$ effectively serves as a target occupancy for IRL.
+    Notice that its parameter $\hat{\phi}$ is fully determined by the expert's parameters $\phi_E$ and the current reward $\theta^{(i)}$, and the reward update direction is the $\Phi$-space direction from the agent's occupancy to this target, scaled by $\beta$. Here, our main observation is that
+  </p>
+
+  <div class="hl-block hl-block--blue ap">
+    <p>
+      <strong><em>The optimal solution to the IRL problem is explicitly characterized in the space of occupancy measures (as $\phi^\star$). An approximation of this parameter, $\hat{\phi}$ is known in closed-form given just the expert occupancy parameter $\phi_E$ and the current reward parameter $\theta^{(i)}$. IRL can then be seen from the occupancy space pov as the process of moving from $\rho_\pi \rightarrow \rho_{\hat{\pi}}$.</em></strong>
+    </p>
+  </div>
+
+  <p class="ap">
+    The  <a href="#fig-theta-space" class="fig-ref">interactive illustration</a> below shows both spaces, the contour plot of $\mathcal{G}(\theta)$, and the subsequent learnt reward and policy in the two-state MDP.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Θ-space, Φ-space and the two-state problem (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ap" id="fig-theta-space" data-theta="-0.4,0.9" data-always="dual" data-g-label></figure>
+
+  <p class="ap">
+    <strong>To summarise:</strong> so far, we have introduced function-space updates and characterized their geometry. In the remainder of this write-up we will see how functional updates are a form of natural gradient descent \footnote{Natural gradients are geometry-aware gradients that are often much faster in convergence.} and study them through mirror descent. We will also briefly see how they can be used in complex, high-dimensional IRL problems to learn state-of-the-art IRL policies and rewards.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FUNCTION-SPACE REWARD UPDATES
+       ═══════════════════════════════════════════════════════ -->
+  <h2 class="section-label ap">Function-Space Reward Updates</h2>
+
+  <p class="ap">
+      In this section, we will answer the main question we had raised before. i.e. <strong><em>why do such function-space reward updates perform so well?</em></strong>. To do so, we will first characterize the function space update direction $\delta^{(i)}$, showing that it is indeed a better, curvature-aware descent direction compared to the standard gradient. Further, we will see that the complete update $\theta^{(i+1)} = \theta^{(i)} - \epsilon\, \left( \theta^{(i)} -  \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})} \right)$ is equivalent to mirror descent, showing that the update itself is principled and fits the analytical setting of several well-studied optimization algorithms. Before moving on to the proofs, it is worth briefly reviewing both natural gradient descent and mirror descent. From this section onwards, we will also be focusing more on proving these results and providing intuition on the proofs.
+  </p>
+
+  <div data-basics>
+
+  <p class="ap">
+    <strong><u>Natural Gradient Descent.</u></strong> <br>
+    Say we want to minimize a differentiable function $\mathcal{G}(\theta)$ w.r.t its inputs $\theta$. For a small step in the inputs $\theta + d$, the function can be approximated by its first-order taylor expansion around the point $\theta$.
+    $$\mathcal{G}(\theta + d) \approx \mathcal{G}(\theta) + \nabla_{\theta} \mathcal{G}(\theta)^\intercal d$$
+    We want to find a suitable $d$ that solves
+    $$\begin{align*}
+    \arg\min_d \; & \mathcal{G}(\theta) + \nabla_{\theta} \mathcal{G}(\theta)^\intercal d \\
+    = \arg\min_d \; & \nabla_{\theta} \mathcal{G}(\theta)^\intercal d
+    \end{align*}$$
+    However, being a linear function, it has no minimum without a set constraint. Further, the first-order expansion is only valid for a small $d$. To define a suitable set over which to minimize $\nabla_{\theta} \mathcal{G}(\theta)^\intercal d$, we need to include an additional constraint on the length of $d$ (called the proximal term). Say we define the length by $\left\lVert d \right\rVert_{M}^2 = d^\intercal M d$ with $M$ being a positive semi-definite matrix. The first-order optimization problem then becomes
+    $$\arg\min_d \; \nabla_{\theta} \mathcal{G}(\theta)^\intercal d \quad \text{s.t.} \quad \underbrace{d^\intercal M d \leq \varepsilon^2}_{\text{prox. term}}$$
+    The optimal solution is obtained by forming a Lagrangian with multiplier $\lambda \geq 0$. Setting its derivative with respect to $d$ to zero and using that the constraint is active (for $\nabla_{\theta} \mathcal{G}(\theta) \neq 0$),
+    $$\begin{aligned}
+    \nabla_d \Big( \nabla_{\theta} \mathcal{G}(\theta)^\intercal d + \tfrac{\lambda}{2} \big( d^\intercal M d - \varepsilon^2 \big) \Big) = \nabla_{\theta} \mathcal{G}(\theta) + \lambda M d = 0 \quad &\Longrightarrow \quad d = -\tfrac{1}{\lambda} M^{-1} \nabla_{\theta} \mathcal{G}(\theta), \\
+    d^\intercal M d = \tfrac{1}{\lambda^2}\, \nabla_{\theta} \mathcal{G}(\theta)^\intercal M^{-1} \nabla_{\theta} \mathcal{G}(\theta) = \varepsilon^2 \quad &\Longrightarrow \quad d^\star = -\frac{\varepsilon\, M^{-1} \nabla_{\theta} \mathcal{G}(\theta)}{\sqrt{\nabla_{\theta} \mathcal{G}(\theta)^\intercal M^{-1} \nabla_{\theta} \mathcal{G}(\theta)}}.
+    \end{aligned}$$
+  </p>
+
+  <p class="ap">
+    For a positive semi-definite $M$, the steepest first-order descent direction is therefore $-M^{-1} \nabla_{\theta} \mathcal{G}(\theta)$. Gradient descent defines the proximal term to be the standard Euclidean norm ($M=I$). While this sounds simple at first, it is typically not the smartest choice. Under a Euclidean proximal term, the steepest descent direction depends on the parameterization of our objective. Given that we will change the parameters $\theta$ several times during optimization, our metric also changes arbitrarily.
+  </p>
+
+  <p class="ap">
+    Natural gradient descent is another first-order method which defines the proximal term to be the change in some distribution defined by parameters $\theta$. Here, $M = F(\theta) = \mathbb{E}_{p_{\theta}} \left[ \nabla_\theta \log p_{\theta}(\mathbf{x}) \nabla_\theta \log p_{\theta}(\mathbf{x})^\intercal \right]$, where $p_{\theta}$ is some probability distribution parameterized by $\theta$. $F(\theta)$ is called the Fisher Information Matrix (FIM). It can be shown that this metric is invariant to the parameterization of $\theta$, which means that the proximal term of natural gradient descent is stationary throughout optimization. The FIM is the second-order derivative of the KL divergence between nearby distributions at $d = 0$, $\mathrm{KL}(p_{\theta} \,\|\, p_{\theta + d}) \approx \tfrac{1}{2}\, d^\intercal F(\theta)\, d$. NGD updates are hence also "curvature-aware" and typically less prone to getting stuck in local optima.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · The dual under the Euclidean and the Fisher metric (static)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ap" id="fig-ngd-metric">
+    <div class="ifig__canvas nm-body">
+      <div class="tp-left"><svg class="tp-plot nm-plot nm-euc" viewBox="0 0 300 318" role="img"
+           aria-label="Contours of the dual in reward parameter space with the Euclidean metric, and the gradient step"></svg></div>
+      <div class="tp-left"><svg class="tp-plot nm-plot nm-fis" viewBox="0 0 300 318" role="img"
+           aria-label="The same contours in coordinates where the Fisher metric is Euclidean, and the natural gradient step"></svg></div>
+    </div>
+    <figcaption>
+      <strong>Plotting the same optimization objective under two different metrics.</strong>
+      Left: contours of the dual $\mathcal{G}(\theta)$ of the two-state problem in $\Theta$ with the Euclidean metric.
+      The dashed circle contains the steps of equal Euclidean length from $\theta^{(i)}$, with the steepest being the
+      <span class="hl-grad">gradient step</span> (perpendicular to the contour through $\theta^{(i)}$).
+      Right: the same objective plotted in the coordinates $\eta = \sqrt{F(\theta^{(i)})} (\theta - \theta^{(i)})$.
+      A step $d$ in $\Theta$ is the step $\sqrt{F} d$ in $\eta$ coordinates,
+      so the dashed circle contains the steps of equal Fisher length, and the steepest step (perpendicular to the contour) is the
+      <span class="hl-natF">natural gradient step</span>.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+    <strong><u>Mirror Descent.</u></strong><br>
+    Consider optimizing a differentiable, convex function $f(\mathbf{x}): X \rightarrow \mathbb{R}$. Recall the gradient descent update equation
+    $$\mathbf{x}^{(i+1)} = \mathbf{x}^{(i)} - \alpha \nabla_{\mathbf{x}} f(\mathbf{x}).$$
+    When using gradient descent, we implicitly make the assumption that for points $\mathbf{x} \in X$ the gradient $\nabla_{\mathbf{x}} f(\mathbf{x}) \in X$. However, this is not true in general. In general, $\nabla_{\mathbf{x}} f(\mathbf{x})$ could be an element of a potentially different space $X^\star$ (here the star notation doesn't denote optimality).
+    Gradient descent operates in a special case (Euclidean) where $X = \mathbb{R}^n$, the inner product is $\langle \mathbf{x}, \mathbf{y} \rangle = \mathbf{x}^\intercal \mathbf{y}$, and the lengths are measured with the norm $\sqrt{\mathbf{x}^\intercal \mathbf{x}}$. Owing to this inner product, in the case of gradient descent, $\nabla_{\mathbf{x}} f(\mathbf{x}) \in X$.
+  </p>
+
+  <p class="ap">
+    Mirror descent (MD) is a more general-purpose first-order method that adapts to non-Euclidean geometries \footnote{E.g.: $X = \Delta_n$, the probability simplex, with the KL divergence as the proximal term instead of the squared Euclidean distance.}. Instead of the Euclidean norm as the proximal term, MD uses the more general Bregman divergence. Below, we will briefly motivate the Bregman divergence. Consider a differentiable, convex function $\Omega: X \rightarrow \mathbb{R}$. In the context of MD, $\Omega$ is called the "mirror map". Under some mirror map $\Omega$, the Bregman divergence between two vectors $\mathbf{x}_1, \mathbf{x}_2$ is defined as
+    $$D_{\Omega}(\mathbf{x}_1, \mathbf{x}_2) = \Omega(\mathbf{x}_1) - \left[ \Omega(\mathbf{x}_2) + \left\langle \nabla_{\mathbf{x}} \Omega(\mathbf{x}_2), \mathbf{x}_1 - \mathbf{x}_2 \right\rangle \right]$$
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · The Bregman divergence in one dimension (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ap" id="fig-bregman">
+    <div class="ifig__controls">
+      <span class="ifig__label">Mirror map</span>
+      <button class="chip is-active" data-map="quad">Quadratic</button>
+      <button class="chip" data-map="negent">Negative Entropy</button>
+    </div>
+    <div class="ifig__canvas">
+      <svg class="bg-plot" viewBox="0 0 340 340" tabindex="0" role="img"
+           aria-label="A convex mirror map, its tangent at x2, and the Bregman divergence as the vertical gap at x1 between the curve and the tangent. Drag to move x1 and x2."></svg>
+      <div class="bg-readout">$D_\Omega(x_1, x_2) =$ <span class="bg-val"></span></div>
+    </div>
+    <figcaption>
+      <strong>An illustration of the Bregman divergence under the two mirror maps seen in the paper.</strong>
+      Drag the two points to visualize the divergence.
+    </figcaption>
+  </figure>
+
+  <p class="ap">
+      From the illustration above, it becomes apparent that the Bregman divergence is just the difference in the values $\Omega(\mathbf{x}_1)$ and the first-order approximation of $\Omega(\mathbf{x}_1)$ computed at $\mathbf{x}_2$.
+      Since $\Omega$ is convex, it always lies above its tangents. Hence, $D_{\Omega}(\mathbf{x}_1, \mathbf{x}_2) \geq 0$.
+      Unlike a distance, it is in general not symmetric, $D_{\Omega}(\mathbf{x}_1, \mathbf{x}_2) \neq D_{\Omega}(\mathbf{x}_2, \mathbf{x}_1)$ (see the negative entropy map above), and it does not satisfy the triangle inequality.
+      For mirror descent, $\Omega$ is further chosen such that its gradient $\nabla_{\mathbf{x}} \Omega$ is a bijection from $X$ onto the dual space $X^\star$ \footnote{Every element of $X^\star$ is the gradient $\nabla_{\mathbf{x}} \Omega(\mathbf{x})$ of exactly one $\mathbf{x} \in X$.}.
+  </p>
+
+  <p class="ap">
+      Now let's move on to the actual mirror descent algorithm. MD is also a first-order method. So we will start with the same optimization problem we saw in the section on natural gradients (this time written in inner product notation).
+      $$\mathbf{x}^{(i+1)} = \arg \min_{\mathbf{x} \in X} \; \epsilon \left\langle \nabla_{\mathbf{x}} f(\mathbf{x}^{(i)}) , \mathbf{x} \right\rangle + \underbrace{D_{\Omega}(\mathbf{x}, \mathbf{x}^{(i)})}_{\text{Bregman prox. term}}$$
+      where $\mathbf{x}^{(i)}$ is our current point and $\epsilon$ is a scalar step-size. Remember that we no longer assume that the sample and the gradient of the objective are in the same space. Recall from above that we have defined a "mirror map" $\Omega$ such that its gradient $\nabla_{\mathbf{x}} \Omega$ is a bijective function mapping from $X \rightarrow X^\star$.
+  </p>
+
+  <p class="ap">
+      An intuitive picture of mirror descent is that instead of directly updating the sample $\mathbf{x}^{(i)}$, we first map it to a different space $X^\star$ to get $\mathbf{y}^{(i)} = \nabla_{\mathbf{x}} \Omega(\mathbf{x}^{(i)})$. This new space (called the "dual" space) is where the gradients of functions on $X$ lie, including the gradient of the objective function $\nabla_{\mathbf{x}} f(\mathbf{x}^{(i)}) \in X^\star$. We can then perform an optimization step in this dual space to get a new point $\mathbf{y}^{(i+1)} = \mathbf{y}^{(i)} - \epsilon \nabla_{\mathbf{x}} f(\mathbf{x}^{(i)})$. Since the mirror map is bijective, the new point in the dual space must correspond to some point $\mathbf{x}^{(i+1)} \in X$ (with the first space called the "primal" space). We can obtain the next iterate in the primal space through the inverted mirror map $\mathbf{x}^{(i+1)} = \left( \nabla_{\mathbf{x}} \Omega \right)^{-1}(\mathbf{y}^{(i+1)})$.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Mirror descent in the primal and the dual space (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ap" id="fig-md-primal-dual">
+    <div class="ifig__canvas">
+      <div class="mdp-wrap">
+        <svg class="mdp-plot" viewBox="0 0 780 350" role="img"
+             aria-label="One mirror descent step on the dual of the two-state problem: the point is mapped to the dual space, updated there with the gradient, and mapped back to the primal space. Drag the point in the primal space."></svg>
+        <div class="mdp-lab mdp-lab--up">$\nabla_{\theta} \Omega(\theta) = \tfrac{1}{\beta} H \theta$</div>
+        <div class="mdp-lab mdp-lab--down">$(\nabla_{\theta} \Omega)^{-1}(\mathbf{y}) = \beta H^{-1} \mathbf{y}$</div>
+        <div class="mdp-glab mdp-glab--primal">$\mathcal{G}(\theta)$</div>
+        <div class="mdp-glab mdp-glab--dual">$\mathcal{G}(\beta H^{-1} \mathbf{y})$</div>
+      </div>
+    </div>
+    <figcaption>
+      <strong>A mirror descent step on the Lagrangian dual $\mathcal{G}(\theta)$ of the two-state problem.</strong>
+      The mirror map is the quadratic map of Prop. 3.7, $\Omega(\theta) = \nicefrac{1}{2\beta} \langle \theta, H \theta \rangle$ with $H = F(\phi^\star)$, the Fisher information at the optimal occupancy parameter $\phi^\star$.
+      The <span class="hl-func">gradient step</span> $\mathbf{y}^{(i+1)} = \mathbf{y}^{(i)} - \epsilon \nabla_{\theta} \mathcal{G}(\theta^{(i)})$ is taken in the dual space.
+      We show $\mathcal{G}(\theta)$ on the left and $\mathcal{G}\big((\nabla_{\theta} \Omega)^{-1}(\mathbf{y})\big)$ on the right, with $\mathbf{y}^\star = \nabla_{\theta} \Omega(\theta^\star)$.
+    </figcaption>
+  </figure>
+
+  <div class="latex-algorithm latex-algorithm--boxed ap">
+    <div class="latex-algorithm__caption"><span class="latex-algorithm__label">Algorithm 1</span> <span class="latex-algorithm__title">Mirror Descent</span></div>
+    <ol class="latex-algorithmic">
+      <li><span><span class="alg-keyword">Input:</span> initial point $\mathbf{x}^{(0)} \in X$, mirror map $\Omega$, step size $\epsilon$</span></li>
+      <li><span><span class="alg-keyword">for</span> $i = 0, 1, 2, \dots$ <span class="alg-keyword">do</span></span></li>
+      <li class="alg-indent"><span>$\mathbf{y}^{(i)} = \nabla_{\mathbf{x}} \Omega(\mathbf{x}^{(i)})$ <span class="alg-ref">▷ map to the dual space</span></span></li>
+      <li class="alg-indent"><span>$\mathbf{y}^{(i+1)} = \mathbf{y}^{(i)} - \epsilon\, \nabla_{\mathbf{x}} f(\mathbf{x}^{(i)})$ <span class="alg-ref">▷ gradient step in the dual space</span></span></li>
+      <li class="alg-indent"><span>$\mathbf{x}^{(i+1)} = \left( \nabla_{\mathbf{x}} \Omega \right)^{-1}(\mathbf{y}^{(i+1)})$ <span class="alg-ref">▷ map back to the primal space</span></span></li>
+      <li><span><span class="alg-keyword">end for</span></span></li>
+    </ol>
+  </div>
+
+  <p class="ap">
+      Mirror Descent is a general framework and many popular optimization algorithms fit under it. Its convergence rate and other properties depend on the mirror map and the primal/dual spaces.
+  </p>
+
+  </div>
+
+  <h3 class="sub-label ap">Natural-Gradient-Like Reward Updates in IRL</h3>
+  <p class="ap">
+      We are finally ready to discuss the main findings of this paper. In this section, we will see that the function-space update direction $\delta^{(i)} = \theta^{(i)} -  \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}$ is equivalent to a natural gradient style direction $\beta \left( H^{(i)} \right)^{-1} \nabla_{\theta} \mathcal{G}$ where $H^{(i)}$ is an integral over Fisher Information Matrices along the optimization trajectory from the current occupancy parameter to a target parameter. This equivalence is significant because it implies that we can do efficient, geometry-aware natural-gradient-style reward updates <strong>without having to compute or invert any Fisher Information Matrices!</strong> This finding directly explains why such functional updates were empirically seen to be efficient.
+  </p>
+
+  <div class="thm-block ap" id="proof-natural-gradient">
+    <div class="thm-block__label">Proof of Lemma 3.8</div>
+    <p class="ap">
+      Let us start by defining the mean under samples drawn from an occupancy $\mu(\phi) \triangleq \mathbb{E}_{\rho_{\phi}} \left[ \psi(\mathbf{s}, \mathbf{a}) \right]$. From the <a href="#derivation-maxent-irl">IRL derivation in the appendix</a>, we know that the vanilla gradient of the IRL dual is
+      $$\nabla_{\theta} \mathcal{G} = \mathbb{E}_{\rho_{\phi^{(i)}}} \left[ \psi(\mathbf{s}, \mathbf{a}) \right] - \mathbb{E}_{\rho_{\hat{\pi}}} \left[ \psi(\mathbf{s}, \mathbf{a}) \right] = \mu(\phi_{\rho^{(i)}}) - \mu(\hat{\phi})$$
+      The vanilla gradient is a difference between the mean features under two different occupancies. An interesting remark here is that, owing to our assumption that occupancies are exponential family distributions, the vanilla gradient is an m-geodesic\footnote{A path between two distributions that is a straight line in their mean parameters.}. While the occupancy space difference of parameters $\phi_{\rho^{(i)}} - \hat{\phi}$ is an e-geodesic\footnote{A path between two distributions that is a straight line in their natural parameters.}.
+    </p>
+
+    <p class="ap">
+      Recall the <a href="https://en.wikipedia.org/wiki/Fundamental_theorem_of_calculus">fundamental theorem of calculus</a>. Considering $\mu(\phi)$ as our function, the application of FTC gives
+      $$\begin{aligned}
+      \mu(\phi_{\rho^{(i)}}) - \mu(\hat{\phi}) &= \int_{\hat{\phi} \rightarrow \phi_{\rho^{(i)}}} \nabla_{\phi} \mu(\phi) \, d\phi \\
+      &\quad \text{Recall our definition of the line along occupancy parameters;} \\
+      &\quad \text{the line integral can be written explicitly through } \tau \\
+      &= \int_0^1 \nabla_{\phi} \mu\big(\phi^{(i)}(\tau)\big) \big( \phi_{\rho^{(i)}} - \hat{\phi} \big) \, d\tau, \qquad \phi^{(i)}(\tau) = \hat{\phi} + \tau \big( \phi_{\rho^{(i)}} - \hat{\phi} \big) \\
+      &\quad \text{Expanding the definition of the line} \\
+      &= \left( \int_0^1 \nabla_{\phi} \mu\big(\hat{\phi} + \tau ( \phi_{\rho^{(i)}} - \hat{\phi} )\big) \, d\tau \right) \big( \phi_{\rho^{(i)}} - \hat{\phi} \big) \\
+      &\quad \text{The gradient of the mean map is the feature covariance,} \\
+      &\quad \nabla_{\phi} \mu(\phi) = \mathrm{Cov}_{\rho_{\phi}}[\psi(\mathbf{s}, \mathbf{a})] = F(\phi)\footnote{With $A(\phi) = \log \sum_{\mathbf{s},\mathbf{a}} \exp\big(\phi^\intercal \psi(\mathbf{s},\mathbf{a})\big)$ and $\rho_\phi = \exp\big(\phi^\intercal \psi - A(\phi)\big)$, we have $\nabla_{\phi} A(\phi) = \sum_{\mathbf{s},\mathbf{a}} \rho_\phi \psi = \mu(\phi)$ and $\nabla_{\phi} \rho_\phi = \rho_\phi \big(\psi - \mu(\phi)\big)$. Hence $\nabla_{\phi} \mu(\phi) = \sum_{\mathbf{s},\mathbf{a}} \rho_\phi \big(\psi - \mu(\phi)\big) \psi^\intercal = \mathbb{E}_{\rho_\phi}[\psi \psi^\intercal] - \mu(\phi) \mu(\phi)^\intercal = \mathrm{Cov}_{\rho_\phi}[\psi]$, which is the Fisher information $F(\phi)$ of the exponential family distribution.} \\
+      &= \left( \int_0^1 \mathrm{Cov}_{\rho_{\phi^{(i)}(\tau)}}\big[\psi(\mathbf{s}, \mathbf{a})\big] \, d\tau \right) \big( \phi_{\rho^{(i)}} - \hat{\phi} \big) \\
+      &= \left( \int_0^1 F\big(\phi^{(i)}(\tau)\big) \, d\tau \right) \big( \phi_{\rho^{(i)}} - \hat{\phi} \big) \\
+      &\quad \text{Defining the integral FIM as a new quantity} \\
+      \text{let } H^{(i)} &\triangleq \int_0^1 F\big(\phi^{(i)}(\tau)\big) \, d\tau \text{ and } \delta^{\prime} = \nicefrac{\delta^{(i)}}{\beta} = \phi_{\rho^{(i)}} - \hat{\phi} \\
+      &\quad \text{Using the definition of the e-geodesic from the } \href{#param-spaces}{\text{geometric picture}} \\
+      \text{then } \nabla_{\theta} \mathcal{G} &= H^{(i)} \delta^{\prime} \\
+      \delta^{\prime} &= \big( H^{(i)} \big)^{-1} \nabla_{\theta} \mathcal{G} \\
+      \delta^{(i)} &= \beta \big( H^{(i)} \big)^{-1} \nabla_{\theta} \mathcal{G} = \theta^{(i)} - \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <p class="ap">
+    <strong>To reiterate:</strong> the quantity  $\beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}$ is easily computed empirically by either directly computing the occupancies in the discrete setting, or by fitting a binary classifier (discriminator) between expert and agent rollouts in the continuous setting. The natural-gradient-style update is directly computable given the current reward iterate and this ratio. This closed form interpolation is much cheaper than having to estimate an FIM (let alone an integral of FIMs). In general it is prohibitively expensive to compute the FIM even for moderate-sized (or even sparsely discretized continuous) MDPs.
+  </p>
+
+  <h3 class="sub-label ap">Reward Update Mirror Descent</h3>
+
+  <p class="ap">
+      So far we have seen that the functional update direction is similar to a natural gradient. However, what remains unclear is whether the update itself is meaningful. Here, we quickly show that the reward update performs mirror descent.
+  </p>
+
+  <div class="thm-block ap" id="proof-reward-md">
+    <div class="thm-block__label">Proof of Theorem 3.9</div>
+    <p class="ap">
+      Consider an iteration-dependent (time-varying) quadratic mirror map $\Omega^{(i)}(\theta) \triangleq \nicefrac{\langle \theta, H^{(i)} \theta \rangle}{2 \beta}$, whose Bregman divergence is $D_{\Omega^{(i)}}(\theta, \theta^{(i)}) = \tfrac{1}{2\beta} \lVert \theta - \theta^{(i)} \rVert_{H^{(i)}}^2$. The mirror descent step on $\mathcal{G}$ with step size $\epsilon$ is
+      $$\begin{aligned}
+      \theta^{(i+1)} &= \arg\min_{\theta} \; \left\langle \nabla_{\theta} \mathcal{G}(\theta^{(i)}), \theta \right\rangle + \frac{1}{2 \epsilon \beta} \left\lVert \theta - \theta^{(i)} \right\rVert_{H^{(i)}}^2 \\
+      &\quad \text{Taking the gradient of the objective and setting it to zero at the optimum} \\
+      0 &= \nabla_{\theta} \mathcal{G}(\theta^{(i)}) + \frac{1}{\epsilon \beta} H^{(i)} \big( \theta^{(i+1)} - \theta^{(i)} \big) \\
+      &\quad H^{(i)} \text{ is invertible since we assumed that the FIM is symmetric positive definite} \\
+      \theta^{(i+1)} &= \theta^{(i)} - \epsilon \beta \big( H^{(i)} \big)^{-1} \nabla_{\theta} \mathcal{G}(\theta^{(i)}) \\
+      &\quad \text{Applying Lemma 3.8, we arrive at the function space update} \\
+      &= \theta^{(i)} - \epsilon\, \delta^{(i)}
+      \end{aligned}$$
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       PROPERTIES OF FUNCTION-SPACE UPDATES
+       ═══════════════════════════════════════════════════════ -->
+  <h2 class="section-label ap">Properties of Function-Space Updates</h2>
+
+  <p class="ap">
+    The discussion so far has revolved around why the function-space updates are better than gradient descent updates. We will now try to quantify the difference in convergence between them. Specifically, we would like to answer the question: <strong>how close is the updated parameter to the optimal one ($\theta^\star$) compared to the initial parameter?</strong> Before doing so, let's try to quantify the best possible update.
+  </p>
+
+  <p class="ap">
+    <strong><u>Direct Optimization.</u></strong><br>
+    Imagine knowing the solution to the optimization problem beforehand. The best possible update is then one-step of optimization that directly traverses a straight line from the current point to the solution. The following proof quantifies this update step in terms of the Hessian of the Lagrangian dual.
+  </p>
+
+  <div class="thm-block ap" id="proof-direct-opt">
+    <div class="thm-block__label">Proof of Proposition 3.4</div>
+    <p class="ap">
+      Applying the fundamental theorem of calculus to $\nabla_{\theta} \mathcal{G}$ along the line from $\theta^\star$ to $\theta^{(i)}$,
+      $$\begin{aligned}
+      \nabla_{\theta} \mathcal{G}(\theta^{(i)}) - \cancelto{0}{\nabla_{\theta} \mathcal{G}(\theta^{\star})} &= \int_{\theta^{\star} \rightarrow \theta^{(i)}} \nabla_{\theta} \big( \nabla_{\theta} \mathcal{G}(\theta) \big) \, d\theta \\
+      &\quad \text{Expanding the line integral like we did before} \\
+      &= \int_0^1 \nabla_{\theta}^2 \mathcal{G}\big(\theta^{(i)}(\tau)\big) \big( \theta^{(i)} - \theta^{\star} \big) \, d\tau, \qquad \theta^{(i)}(\tau) = \theta^{\star} + \tau \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{The parameter difference is independent of } \tau \\
+      &= \left( \int_0^1 \nabla_{\theta}^2 \mathcal{G}\big(\theta^{(i)}(\tau)\big) \, d\tau \right) \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{Defining the integral Hessian} \\
+      \text{let } \bar{H}^{(i)} &\triangleq \int_0^1 \nabla_{\theta}^2 \mathcal{G}\big(\theta^{(i)}(\tau)\big) \, d\tau \\
+      &\quad \text{We obtain an optimization step comparable to our functional update form} \\
+      \theta^{\star} &= \theta^{(i)} - \big( \bar{H}^{(i)} \big)^{-1} \nabla_{\theta} \mathcal{G}(\theta^{(i)})
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <p class="ap">
+    $\bar{H}^{(i)}$ is the hypothetical ideal preconditioner, which cannot be computed directly since it requires knowledge of the optimal parameter $\theta^{\star}$. However, it provides a point-of-reference to compare other gradient updates against each other. Below we answer our initial question by comparing the contraction rate of a reward update for vanilla gradient descent and functional updates. $\bar{H}^{(i)}$ plays a key role in both rates as it defines the geometry of the objective function along the optimization trajectory.
+  </p>
+
+  <h3 class="sub-label ap">First-Order Contraction</h3>
+  <p class="ap">
+    Let us first examine the contraction rate of vanilla gradient descent.
+  </p>
+  <div class="thm-block ap" id="proof-vgd-contraction">
+    <div class="thm-block__label">Proof of Proposition 3.12 (Vanilla Gradient)</div>
+    <p class="ap">
+      Let $\lambda_{\min}$ and $\lambda_{\max}$ be the smallest and largest eigenvalues of $\bar{H}^{(i)}$, and $\kappa(\bar{H}^{(i)}) = \nicefrac{\lambda_{\max}}{\lambda_{\min}}$ its condition number \footnote{For a matrix $A$, $\kappa(A)$ bounds how much a small relative change in $\mathbf{x}$ is amplified in $A\mathbf{x}$.}. The vanilla gradient step with step size $\alpha$ is
+      $$\begin{aligned}
+      \theta^{(i+1)} &= \theta^{(i)} - \alpha\, \nabla_{\theta} \mathcal{G}(\theta^{(i)}) \\
+      &\quad \text{From the previous proof, the gradient can be written in terms of the integral Hessian} \\
+      &= \theta^{(i)} - \alpha\, \bar{H}^{(i)} \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{Subtracting } \theta^\star \text{ on both sides} \\
+      \theta^{(i+1)} - \theta^{\star} &= \big( I - \alpha \bar{H}^{(i)} \big) \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{Taking norms} \footnote{$\lVert A \mathbf{x} \rVert_2 \leq \lVert A \rVert_2 \, \lVert \mathbf{x} \rVert_2$ for every $\mathbf{x}$} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_2 &\leq \big\lVert I - \alpha \bar{H}^{(i)} \big\rVert_2 \, \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_2 \\
+      &\quad \text{Eigendecomposition, } A = Q \Lambda Q^\intercal\footnote{A symmetric $A \in \mathbb{R}^{d \times d}$ has $d$ orthonormal eigenvectors $\mathbf{q}_k$, with $A \mathbf{q}_k = \lambda_k \mathbf{q}_k$. Stacking them as the columns of $Q$ gives $A Q = Q \Lambda$, where $\Lambda = \mathrm{diag}(\lambda_1, \dots, \lambda_d)$ is diagonal because $A$ only scales each column $\mathbf{q}_k$ by its own $\lambda_k$. Orthonormal columns mean $Q^\intercal Q = I$, so $Q^{-1} = Q^\intercal$ and $A = Q \Lambda Q^\intercal$.} \\
+      &\quad \text{For orthogonal } Q,\; \lVert Q \mathbf{x} \rVert_2 = \lVert \mathbf{x} \rVert_2 \text{ and } \lVert Q M Q^\intercal \rVert_2 = \lVert M \rVert_2\footnote{$\lVert Q \mathbf{x} \rVert_2^2 = \mathbf{x}^\intercal Q^\intercal Q \mathbf{x} = \mathbf{x}^\intercal \mathbf{x} = \lVert \mathbf{x} \rVert_2^2$.} \\
+      &\quad \text{Norm of a diagonal matrix, } \lVert D \rVert_2 = \max_k \lvert d_k \rvert\footnote{$\lVert D \mathbf{y} \rVert_2^2 = \sum_k d_k^2 y_k^2 \leq \max_k d_k^2 \, \lVert \mathbf{y} \rVert_2^2$, with equality when $\mathbf{y}$ points along the coordinate of the largest $\lvert d_k \rvert$.} \\
+      &\quad \text{Since } \bar{H}^{(i)} \text{ is symmetric positive definite, it admits an eigendecomposition } \bar{H}^{(i)} = Q \Lambda Q^\intercal \\
+      \big\lVert I - \alpha \bar{H}^{(i)} \big\rVert_2 &= \big\lVert I - \alpha Q \Lambda Q^\intercal \big\rVert_2 = \big\lVert Q \big( I - \alpha \Lambda \big) Q^\intercal \big\rVert_2 = \big\lVert I - \alpha \Lambda \big\rVert_2 = \max\big\{ \lvert 1 - \alpha \lambda_{\min} \rvert,\ \lvert 1 - \alpha \lambda_{\max} \rvert \big\} \\
+      &\quad \text{Substituting into the bound above} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_2 &\leq \max\big\{ \lvert 1 - \alpha \lambda_{\min} \rvert,\ \lvert 1 - \alpha \lambda_{\max} \rvert \big\} \, \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_2 \\
+      &\quad \text{The best contraction has the smallest factor } \max \{ ... \} \\
+      &\quad \text{This is true when } 1 - \alpha^\star\lambda_{\min} = -(1 - \alpha^\star\lambda_{\max}) \\
+      \alpha^{\star} &= \frac{2}{\lambda_{\min} + \lambda_{\max}} \\
+      &\quad \text{Substituting above} \\
+      \big\lVert I - \alpha^{\star} \bar{H}^{(i)} \big\rVert_2 &= 1 - \alpha^{\star} \lambda_{\min} = 1 - \frac{2 \lambda_{\min}}{\lambda_{\min} + \lambda_{\max}} = \frac{\lambda_{\max} - \lambda_{\min}}{\lambda_{\max} + \lambda_{\min}} = \frac{\kappa(\bar{H}^{(i)}) - 1}{\kappa(\bar{H}^{(i)}) + 1} \\
+      &\quad \text{This results in the one-step first-order contraction of gradient descent} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_2 &\leq \frac{\kappa(\bar{H}^{(i)}) - 1}{\kappa(\bar{H}^{(i)}) + 1} \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_2
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <p class="ap">
+    Notice that the contraction factor depends on $\kappa(\bar{H}^{(i)})$. Most problems in IRL are poorly conditioned and the condition number of the integral hessian is typically quite large. Let us now compare this to the contraction rate of the function space reward update.
+  </p>
+
+  <div class="thm-block ap" id="proof-fu-contraction">
+    <div class="thm-block__label">Proof of Proposition 3.11 (Functional Update)</div>
+    <p class="ap">
+      Let $\lambda_{\min}$ and $\lambda_{\max}$ be the smallest and largest eigenvalues of $\big( H^{(i)} \big)^{-1} \bar{H}^{(i)}$, and $\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) = \nicefrac{\lambda_{\max}}{\lambda_{\min}}$ its condition number. The functional update with step size $\epsilon$ is
+      $$\begin{aligned}
+      \theta^{(i+1)} &= \theta^{(i)} - \epsilon \beta \big( H^{(i)} \big)^{-1} \nabla_{\theta} \mathcal{G}(\theta^{(i)}) \\
+      &\quad \text{Like the previous proof, the gradient can be written} \\
+      &\quad \text{in terms of the preconditioned integral Hessian} \\
+      &= \theta^{(i)} - \epsilon \beta\, \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{Subtracting } \theta^\star \text{ on both sides} \\
+      \theta^{(i+1)} - \theta^{\star} &= \big( I - \epsilon \beta \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \big) \big( \theta^{(i)} - \theta^{\star} \big) \\
+      &\quad \text{Taking norms in the } H^{(i)} \text{-norm, } \lVert \mathbf{x} \rVert_{H^{(i)}} = \sqrt{\mathbf{x}^\intercal H^{(i)} \mathbf{x}} \footnote{$\lVert A \mathbf{x} \rVert_{H} \leq \lVert A \rVert_{H} \, \lVert \mathbf{x} \rVert_{H}$ for every $\mathbf{x}$.} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_{H^{(i)}} &\leq \big\lVert I - \epsilon \beta \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \big\rVert_{H^{(i)}} \, \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_{H^{(i)}} \\
+      &\quad \text{Since } \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \text{ is self-adjoint in the } H^{(i)} \text{-inner product} \footnote{$\langle H^{-1} \bar{H} \mathbf{x}, \mathbf{y} \rangle_{H} = (H^{-1} \bar{H} \mathbf{x})^\intercal H \mathbf{y} = \mathbf{x}^\intercal \bar{H} \mathbf{y} = \langle \mathbf{x}, H^{-1} \bar{H} \mathbf{y} \rangle_{H}$, since $H$ and $\bar{H}$ are symmetric.} \\
+      &\quad \text{it admits an eigendecomposition } \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} = Q \Lambda Q^{-1} \\
+      &\quad \text{For such } Q,\; \lVert Q \mathbf{y} \rVert_{H^{(i)}} = \lVert \mathbf{y} \rVert_2 \footnote{$\lVert Q \mathbf{y} \rVert_{H}^2 = \mathbf{y}^\intercal Q^\intercal H Q \mathbf{y} = \mathbf{y}^\intercal \mathbf{y}$. With $\mathbf{x} = Q \mathbf{y}$, $(I - \epsilon \beta H^{-1} \bar{H}) \mathbf{x} = Q (I - \epsilon \beta \Lambda) \mathbf{y}$, so $\nicefrac{\lVert (I - \epsilon \beta H^{-1} \bar{H}) \mathbf{x} \rVert_{H}}{\lVert \mathbf{x} \rVert_{H}} = \nicefrac{\lVert (I - \epsilon \beta \Lambda) \mathbf{y} \rVert_2}{\lVert \mathbf{y} \rVert_2}$ and the two norms are equal.} \\
+      \big\lVert I - \epsilon \beta \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \big\rVert_{H^{(i)}} &= \big\lVert Q \big( I - \epsilon \beta \Lambda \big) Q^{-1} \big\rVert_{H^{(i)}} = \big\lVert I - \epsilon \beta \Lambda \big\rVert_2 \\
+      &= \max\big\{ \lvert 1 - \epsilon \beta \lambda_{\min} \rvert,\ \lvert 1 - \epsilon \beta \lambda_{\max} \rvert \big\} \\
+      &\quad \text{Substituting into the bound above} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_{H^{(i)}} &\leq \max\big\{ \lvert 1 - \epsilon \beta \lambda_{\min} \rvert,\ \lvert 1 - \epsilon \beta \lambda_{\max} \rvert \big\} \, \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_{H^{(i)}} \\
+      &\quad \text{The best contraction has the smallest factor } \max \{ ... \} \\
+      &\quad \text{This is true when } 1 - \epsilon^\star \beta \lambda_{\min} = -(1 - \epsilon^\star \beta \lambda_{\max}) \\
+      \epsilon^{\star} &= \frac{2}{\beta \left( \lambda_{\min} + \lambda_{\max} \right)} \\
+      &\quad \text{Substituting above} \\
+      \big\lVert I - \epsilon^{\star} \beta \big( H^{(i)} \big)^{-1} \bar{H}^{(i)} \big\rVert_{H^{(i)}} &= 1 - \epsilon^{\star} \beta \lambda_{\min} = 1 - \frac{2 \lambda_{\min}}{\lambda_{\min} + \lambda_{\max}} \\
+      &= \frac{\lambda_{\max} - \lambda_{\min}}{\lambda_{\max} + \lambda_{\min}} = \frac{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) - 1}{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) + 1} \\
+      &\quad \text{This results in the one-step first-order contraction of the functional update} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_{H^{(i)}} &\leq \frac{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) - 1}{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) + 1} \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_{H^{(i)}}
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <p class="ap">
+    Notice that the norm in Proposition 3.11 is iteration-dependent, meaning that contraction after the update is still measured in the metric defined at the old iteration. Can we instead try to quantify the scaling of the contraction factor between the new iteration's norm and the old iteration's norm? We can easily show that the worst-case scaling factor is the maximum eigenvalue of the new norm's integral FIM preconditioned by the old norm's integral FIM.
+  </p>
+
+  <div class="thm-block ap" id="corollary-norm-change">
+    <div class="thm-block__label">Corollary C.3 (Accounting for the Changing Norm)</div>
+    <p class="ap">
+      <em>Proof.</em> For an arbitrary vector $\mathbf{x}$, the worst-case scaling factor due to the norm change is $c = \max_{\mathbf{x}} \nicefrac{\lVert \mathbf{x} \rVert_{H^{(i+1)}}^2}{\lVert \mathbf{x} \rVert_{H^{(i)}}^2}$, such that $\lVert \mathbf{x} \rVert_{H^{(i+1)}}^2 \leq c \, \lVert \mathbf{x} \rVert_{H^{(i)}}^2$.
+      $$\begin{aligned}
+      c &= \max_{\mathbf{x}} \frac{\mathbf{x}^\intercal H^{(i+1)} \mathbf{x}}{\mathbf{x}^\intercal H^{(i)} \mathbf{x}} \\
+      &\quad \text{Computing the gradient and setting it to zero} \\
+      0 &= \nabla_{\mathbf{x}} \frac{\mathbf{x}^\intercal H^{(i+1)} \mathbf{x}}{\mathbf{x}^\intercal H^{(i)} \mathbf{x}} = \frac{2 H^{(i+1)} \mathbf{x} \big( \mathbf{x}^\intercal H^{(i)} \mathbf{x} \big) - 2 H^{(i)} \mathbf{x} \big( \mathbf{x}^\intercal H^{(i+1)} \mathbf{x} \big)}{\big( \mathbf{x}^\intercal H^{(i)} \mathbf{x} \big)^2} \\
+      &\quad \text{Simplifying} \\
+      H^{(i+1)} \mathbf{x} \big( \mathbf{x}^\intercal H^{(i)} \mathbf{x} \big) &= H^{(i)} \mathbf{x} \big( \mathbf{x}^\intercal H^{(i+1)} \mathbf{x} \big) \\
+      \big( H^{(i)} \big)^{-1} H^{(i+1)} \mathbf{x} &= \frac{\mathbf{x}^\intercal H^{(i+1)} \mathbf{x}}{\mathbf{x}^\intercal H^{(i)} \mathbf{x}} \, \mathbf{x} \\
+      &\quad \text{Notice that this expression has the form} \\
+      A \mathbf{x} &= \lambda \mathbf{x}, \qquad A = \big( H^{(i)} \big)^{-1} H^{(i+1)}, \quad \lambda = \frac{\mathbf{x}^\intercal H^{(i+1)} \mathbf{x}}{\mathbf{x}^\intercal H^{(i)} \mathbf{x}} \\
+      &\quad \text{The worst-case scaling factor is hence the highest eigenvalue} \\
+      c &= \lambda_{\max}\big( (H^{(i)})^{-1} H^{(i+1)} \big) \\
+      &\quad \text{Substituting in our earlier expression} \\
+      \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_{H^{(i+1)}} &\leq \sqrt{\lambda_{\max}\big( (H^{(i)})^{-1} H^{(i+1)} \big)} \, \big\lVert \theta^{(i+1)} - \theta^{\star} \big\rVert_{H^{(i)}} \\
+      &\quad \text{Applying Prop 3.11} \\
+      &\leq \sqrt{\lambda_{\max}\big( (H^{(i)})^{-1} H^{(i+1)} \big)} \; \frac{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) - 1}{\kappa\big( (H^{(i)})^{-1} \bar{H}^{(i)} \big) + 1} \big\lVert \theta^{(i)} - \theta^{\star} \big\rVert_{H^{(i)}}
+      \end{aligned}$$
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Curvature seen by gradient descent and by the functional update (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ap" id="fig-curvature">
+    <div class="ifig__canvas">
+      <div class="cc-top">
+        <div class="tp-left"><svg class="tp-plot tp-plot--theta cc-theta" viewBox="0 0 300 318" role="img"
+             aria-label="Contours of the dual with three iterations of gradient descent and of the functional update from a draggable start"></svg></div>
+        <div class="tp-left"><div class="oc-title cc-3d-title">Quadratic Approximation</div>
+          <svg class="cc-3d" viewBox="0 0 300 260" role="img"
+             aria-label="The quadratic approximation of the dual around the first gradient-descent iterate, drawn in 3D, with its level-set ellipse"></svg></div>
+      </div>
+      <div class="cc-cells">
+        <div></div><div class="cc-head">$i = 0$</div><div class="cc-head">$i = 1$</div><div class="cc-head">$i = 2$</div>
+        <div class="cc-rowlab"><span class="hl-grad">Gradient Descent</span><br>$\alpha^\star \bar{H}^{(i)}$</div><div class="cc-cell" data-m="gd" data-i="0"><div class="cc-cell-plot"></div><div class="cc-val"></div></div><div class="cc-cell" data-m="gd" data-i="1"><div class="cc-cell-plot"></div><div class="cc-val"></div></div><div class="cc-cell" data-m="gd" data-i="2"><div class="cc-cell-plot"></div><div class="cc-val"></div></div>
+        <div class="cc-rowlab"><span class="hl-func">Functional Update</span><br>$\epsilon^\star \beta \big(H^{(i)}\big)^{-1} \bar{H}^{(i)}$</div><div class="cc-cell" data-m="fu" data-i="0"><div class="cc-cell-plot"></div><div class="cc-val"></div></div><div class="cc-cell" data-m="fu" data-i="1"><div class="cc-cell-plot"></div><div class="cc-val"></div></div><div class="cc-cell" data-m="fu" data-i="2"><div class="cc-cell-plot"></div><div class="cc-val"></div></div>
+      </div>
+    </div>
+    <figcaption>
+      <strong>A visualization of the scale and curvature of the geometry of gradient descent and function-space updates.</strong>
+      Left: three iterations of <span class="hl-grad">gradient descent</span> and of the <span class="hl-func">functional update</span> on the contours of $\mathcal{G}$; drag $\theta^{(0)}$ to move the starting point. The typical way to visualize curvature is to compute a quadratic (second-order Taylor) approximation of the objective, $\mathcal{G}(\theta + \mathbf{d}) \approx \mathcal{G}(\theta) + \nabla_{\theta} \mathcal{G}(\theta)^\intercal \mathbf{d} + \tfrac{1}{2} \mathbf{d}^\intercal A \, \mathbf{d}$, where the matrix $A$ controls its curvature.<br><br>
+      The shape of this quadratic approximation tells how the objective changes on stepping in its two principal directions. A poorly-conditioned matrix $A$ makes the quadratic approximation narrow along the steep direction. Even a small step in this steep direction (short axis) causes large changes to the objective; showing that the curvature in this direction is high. Conversely, a well conditioned matrix $A$ makes the quadratic approximation roughly round; such that stepping along both directions leads to a uniform change in the objective.<br><br>
+      Right: a 3D view of the quadratic approximation of $\mathcal{G}$ with $A = \bar{H}^{(0)}$, with the ellipse being its level set.
+      Bottom: a comparison of the curvature at different iterations of the two algorithms at their respective optimal step size (for comparable ellipse sizes).
+      We also compute the condition number $\kappa$ and the best contraction coefficient $\nicefrac{(\kappa - 1)}{(\kappa + 1)}$ for both updates. For the functional update, we account for the changing norm (Corollary C.3).<br><br>
+      <em>To reiterate Propositions 3.11 and 3.12:</em> a rounder ellipse means a smaller $\kappa$ and faster contraction; a larger ellipse means a flatter geometry, which allows larger steps before the objective changes.
+    </figcaption>
+  </figure>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       POLICY SEARCH OVER FUNCTION-SPACE REWARDS
+       ═══════════════════════════════════════════════════════ -->
+  <h2 class="section-label ap">Policy Search over Function-Space Rewards</h2>
+
+  <p class="ap">
+    To close this write-up, let's try to analyse policy search over function space reward updates. We will subsequently show that policy search over such rewards is approximately equivalent to entropic MD \footnote{Mirror descent with the negative entropy $\Omega(\rho) = \sum_{\mathbf{s},\mathbf{a}} \rho(\mathbf{s},\mathbf{a}) \log \rho(\mathbf{s},\mathbf{a})$ as the mirror map.}. Before moving on, we will quickly discuss some standard facts (without proof).
+  </p>
+  <p class="ap">
+    Recall from <a href="#fact-convexity">fact (ii)</a> that $\mathcal{J}$ is concave and differentiable in the occupancy $\rho_\pi(\mathbf{s},\mathbf{a})$, so maximizing it is a convex optimization problem. The negative entropy $\Omega(\rho_\pi) = \sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s},\mathbf{a}) \log \rho_\pi(\mathbf{s},\mathbf{a})$ is strictly convex and differentiable \cite{ho2016generative}, and therefore a valid mirror map on occupancies.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Fact 4.4 (Bregman &amp; KL Divergence)</div>
+    <p>
+      Under the negative entropy mirror map, the Bregman divergence between two occupancies is their KL divergence, $D_{\Omega}(\rho_\pi, \rho_{\pi^{(i)}}) = \mathrm{KL}(\rho_\pi \,\|\, \rho_{\pi^{(i)}})$. This follows directly from the definition, since both occupancies sum to one,
+      $$D_{\Omega}(\rho_\pi, \rho_{\pi^{(i)}}) = \sum_{\mathbf{s},\mathbf{a}} \rho_\pi \log \rho_\pi - \sum_{\mathbf{s},\mathbf{a}} \rho_{\pi^{(i)}} \log \rho_{\pi^{(i)}} - \sum_{\mathbf{s},\mathbf{a}} \big( \log \rho_{\pi^{(i)}} + 1 \big) \big( \rho_\pi - \rho_{\pi^{(i)}} \big) = \sum_{\mathbf{s},\mathbf{a}} \rho_\pi \log \frac{\rho_\pi}{\rho_{\pi^{(i)}}}.$$
+    </p>
+  </div>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Proposition 4.3 (Occupancy Mirror Map)</div>
+    <p>
+      The gradient of the negative entropy, $\nabla \Omega(\rho_\pi) = \log \rho_\pi(\mathbf{s},\mathbf{a}) + 1$, maps occupancies to action-value-like functions $q(\mathbf{s},\mathbf{a})$. The gradient of its convex conjugate maps them back. The dual space of the mirror map is thus the space of action-value functions, as in max-ent RL \cite{geist2019theory}.
+    </p>
+  </div>
+
+  <div class="thm-block ap" id="prop-reward-policy">
+    <div class="thm-block__label">Proposition D.1 (Reward–Policy Relationship)</div>
+    <p>
+      For the soft optimal policy $\pi^{(i)}$ of a reward $r^{(i)}$,
+      $$\log \frac{\rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a})}{\rho_{\pi^{(i)}}(\mathbf{s})} = \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) = r^{(i)}(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} \big[ V_{\pi^{(i)}}(\mathbf{s}') \big] - V_{\pi^{(i)}}(\mathbf{s}).$$
+      The first equality is the policy–occupancy relationship, $\rho_\pi(\mathbf{s},\mathbf{a}) = \pi(\mathbf{a}|\mathbf{s}) \rho_\pi(\mathbf{s})$, and the second is $\pi^{(i)}(\mathbf{a}|\mathbf{s}) = \exp\big(Q^{(i)}(\mathbf{s},\mathbf{a}) - V^{(i)}(\mathbf{s})\big)$ with the soft Bellman equation for $Q^{(i)}$.
+    </p>
+  </div>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Lemma D.2 (Gradient of 𝒥)</div>
+    <p>
+      At $\rho_{\pi^{(i)}}$, the gradient of $\mathcal{J}$ with respect to the occupancy is the negative function-space update direction, up to a constant and a potential-shaping term,
+      $$\nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) = - \delta^{(i)}(\mathbf{s},\mathbf{a}) - \beta - \Big( \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} \big[ V_{\pi^{(i)}}(\mathbf{s}') \big] - V_{\pi^{(i)}}(\mathbf{s}) \Big),$$
+      so, used as a reward, it induces the same optimal policy as $-\delta^{(i)}$. <strong>Why? See below.</strong>
+    </p>
+  </div>
+
+  <p class="ap">
+    <strong>Policy invariance under potential shaping.</strong> This is a famous result in reinforcement learning. Imagine some arbitrary function of the state $f(\mathbf{s})$. Adding a term of the form $\gamma\, \mathbb{E}_{\mathbf{s}'}[f(\mathbf{s}')] - f(\mathbf{s})$ to the reward does not change the optimal policy \cite{ng1999policy}. The same holds for constant shifts of the reward. This is why the $V_{\pi^{(i)}}$ terms and the constant $\beta$ in Lemma D.2 can be dropped.
+  </p>
+
+  <h3 class="sub-label ap">Policy Update Approximate Mirror Descent</h3>
+  <p class="ap">
+    Let us now walk through the proof of the policy search being entropic MD. Before beginning the proof, let's also list out some intermediates that we will later use in the proof.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">(A) Chain Rule of the KL Divergence</div>
+    <p>
+      $$\mathrm{KL}\big( \rho_\pi(\mathbf{s},\mathbf{a}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) \big) = \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) + \sum_{\mathbf{s}} \rho_\pi(\mathbf{s})\, \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big)$$
+    </p>
+  </div>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">(B) KL Divergence and Entropy</div>
+    <p>
+      $$- \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) = H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \big[ \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big]$$
+    </p>
+  </div>
+
+  <p class="ap">
+    Moving on to the main proof.
+  </p>
+  <div class="thm-block ap">
+    <div class="thm-block__label">Proof of Theorem 4.7 (Policy-MD)</div>
+    <p>
+      A policy and its occupancy are in one-to-one correspondence, $\rho_\pi(\mathbf{s},\mathbf{a}) = \pi(\mathbf{a}|\mathbf{s})\, \rho_\pi(\mathbf{s})$ \cite{ho2016generative,syed2008apprenticeship}. Optimizing $\mathcal{J}$ over the policy $\pi$ is therefore equivalent to optimizing $\mathcal{J}$ over the occupancy $\rho_\pi(\mathbf{s},\mathbf{a})$ and subsequently obtaining $\pi$ via marginalization. The mirror descent update on $\mathcal{J}(\rho_\pi)$ with step size $\omega$ is
+      $$\begin{aligned}
+      \rho_{\pi^{(i+1)}}(\mathbf{s},\mathbf{a}) &= \underset{\rho_\pi}{\arg\max} \; \Big[ \big\langle \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big), \rho_\pi \big\rangle - \omega\, \mathrm{KL}\big( \rho_\pi(\mathbf{s},\mathbf{a}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) \big) \Big] \\
+      &\quad \text{Using the inner product definition} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \Big[ \sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s},\mathbf{a})\, \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) - \omega\, \mathrm{KL}\big( \rho_\pi(\mathbf{s},\mathbf{a}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s},\mathbf{a}) \big) \Big] \\
+      &\quad \text{From (A)} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \Big[ \sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s})\, \pi(\mathbf{a}|\mathbf{s})\, \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \\
+      &\qquad - \omega \Big( \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) + \sum_{\mathbf{s}} \rho_\pi(\mathbf{s})\, \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big) \Big] \\
+      &\quad \text{From (B)} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \Big[ \sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s})\, \pi(\mathbf{a}|\mathbf{s})\, \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \\
+      &\qquad + \omega \sum_{\mathbf{s}} \rho_\pi(\mathbf{s}) \Big( H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \big[ \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big] \Big) - \omega\, \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) \Big] \\
+      &\quad \text{Let } \mathcal{K} = \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) \\
+      &= \underset{\rho_\pi}{\arg\max} \; \Big[ \sum_{\mathbf{s}} \rho_\pi(\mathbf{s}) \sum_{\mathbf{a}} \pi(\mathbf{a}|\mathbf{s})\, \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \\
+      &\qquad + \omega \sum_{\mathbf{s}} \rho_\pi(\mathbf{s}) \Big( H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \big[ \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big] \Big) - \omega \mathcal{K} \Big] \\
+      &\quad \text{Taking the sum over the state marginal outside} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \Big[ \sum_{\mathbf{s}} \rho_\pi(\mathbf{s}) \Big( \omega H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \sum_{\mathbf{a}} \pi(\mathbf{a}|\mathbf{s})\, \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \\
+      &\qquad + \omega\, \mathbb{E}_{\pi} \big[ \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big] \Big) - \omega \mathcal{K} \Big] \\
+      &\quad \text{Dividing by } \omega \text{ and from the definition of the expectation over } \pi \\
+      &= \underset{\rho_\pi}{\arg\max} \; \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \Big[ \log \pi^{(i)}(\mathbf{a}|\mathbf{s}) + \frac{1}{\omega} \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \Big] \Big] - \mathcal{K} \\
+      &\quad \text{From } \href{#prop-reward-policy}{\text{Proposition D.1}} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \Big[ r^{(i)}(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} \big[ V_{\pi^{(i)}}(\mathbf{s}') \big] - V_{\pi^{(i)}}(\mathbf{s}) \\
+      &\qquad + \frac{1}{\omega} \nabla_{\rho_\pi} \mathcal{J}\big(\rho_{\pi^{(i)}}\big) \Big] \Big] - \mathcal{K} \\
+      &\quad \text{Apply Lemma D.2, and policy invariance under potential shaping} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \Big[ r^{(i)}(\mathbf{s},\mathbf{a}) - \frac{1}{\omega} \delta^{(i)}(\mathbf{s},\mathbf{a}) \Big] \Big] - \mathcal{K} \\
+      &\quad \text{Notice that the inner term is just the definition of the functional update} \\
+      &= \underset{\rho_\pi}{\arg\max} \; \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \Big[ \Big( \mathcal{U}_{\nicefrac{1}{\omega}}^{\rho^{(i)}} \Big) r^{(i)}(\mathbf{s},\mathbf{a}) \Big] \Big] - \mathcal{K}
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <h3 class="sub-label ap">Bounding Policy MD Errors</h3>
+
+  <p class="ap">
+    Finally, we would like to see if the term $\mathcal{K} = \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big)$ is somehow controllable.  We show that this is upper bounded by the reverse KL divergence between subsequent policy updates (more on it later).
+  </p>
+
+  <p class="ap">
+    Recall that the state occupancy is the discounted mixture of the per-step state distributions, $\rho_\pi(\mathbf{s}) = (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mu^\pi_t(\mathbf{s})$. As before, we first list two intermediates.
+  </p>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">(C) Joint Convexity of the KL Divergence</div>
+    <p>
+      $$\mathrm{KL}\Big( \sum_{t=0}^\infty (1 - \gamma) \gamma^t \mu^\pi_t \,\Big\|\, \sum_{t=0}^\infty (1 - \gamma) \gamma^t \mu^{\pi^{(i)}}_t \Big) \leq \sum_{t=0}^\infty (1 - \gamma) \gamma^t\, \mathrm{KL}\big( \mu^\pi_t \,\|\, \mu^{\pi^{(i)}}_t \big)$$
+      This follows from the joint convexity of the KL divergence \footnote{The KL divergence is convex in the pair of its arguments. i.e. the KL divergence of a weighted average of distributions is at most the weighted average of their KL divergences.}, since $\sum_{t=0}^\infty (1 - \gamma) \gamma^t = 1$.
+    </p>
+  </div>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">(D) Discounted Sums as Expectations</div>
+    <p>
+      For any function $f(\mathbf{s})$,
+      $$\begin{aligned}
+      \frac{\gamma}{1 - \gamma}\, \mathbb{E}_{\rho_\pi(\mathbf{s})} \big[ f(\mathbf{s}) \big] &= \frac{\gamma}{1 - \gamma} \sum_{\mathbf{s}} \rho_\pi(\mathbf{s})\, f(\mathbf{s}) \\
+      &\quad \text{From the definition of } \rho_\pi(\mathbf{s}) \\
+      &= \gamma \sum_{\mathbf{s}} \sum_{t=0}^\infty \gamma^t \mu^\pi_t(\mathbf{s})\, f(\mathbf{s}) \\
+      &\quad \text{Swapping the sums, and by the definition of the expectation under } \mu^\pi_t \\
+      &= \gamma \sum_{t=0}^\infty \gamma^t\, \mathbb{E}_{\mu^\pi_t} \big[ f(\mathbf{s}) \big]
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <div class="thm-block ap">
+    <div class="thm-block__label">Bounding The Error</div>
+    <p>
+      $$\mathcal{K} = \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) \leq \frac{\gamma}{1 - \gamma}\, \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big]$$
+      <em>Proof.</em> \cite{akrour2018model} (Lemma 3) bound the KL divergence between the state distributions of two policies at time $t$,
+      $$\begin{aligned}
+      \mathrm{KL}\big( \mu^\pi_t(\mathbf{s}) \,\|\, \mu^{\pi^{(i)}}_t(\mathbf{s}) \big) &\leq \mathrm{KL}\big( \mu^\pi_{t-1}(\mathbf{s}) \,\|\, \mu^{\pi^{(i)}}_{t-1}(\mathbf{s}) \big) + \mathbb{E}_{\mu^\pi_{t-1}} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{The initial state distributions are fixed ; } \mu^\pi_0 = \mu^{\pi^{(i)}}_0 = \mu_0 \\
+      \mathrm{KL}\big( \mu^\pi_1(\mathbf{s}) \,\|\, \mu^{\pi^{(i)}}_1(\mathbf{s}) \big) &\leq 0 + \mathbb{E}_{\mu^\pi_0} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      \mathrm{KL}\big( \mu^\pi_2(\mathbf{s}) \,\|\, \mu^{\pi^{(i)}}_2(\mathbf{s}) \big) &\leq 0 + \mathbb{E}_{\mu^\pi_0} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] + \mathbb{E}_{\mu^\pi_1} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{By induction} \\
+      \mathrm{KL}\big( \mu^\pi_t(\mathbf{s}) \,\|\, \mu^{\pi^{(i)}}_t(\mathbf{s}) \big) &\leq \sum_{k=0}^{t-1} \mathbb{E}_{\mu^\pi_k} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{From (C)} \\
+      \mathrm{KL}\big( \rho_\pi(\mathbf{s}) \,\|\, \rho_{\pi^{(i)}}(\mathbf{s}) \big) &\leq (1 - \gamma) \sum_{t=0}^\infty \gamma^t \sum_{k=0}^{t-1} \mathbb{E}_{\mu^\pi_k} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{Swap the two sums: the term with index } k \text{ appears once for every } t \geq k+1 \\
+      &= (1 - \gamma) \sum_{k=0}^\infty \Big( \sum_{t=k+1}^\infty \gamma^t \Big) \mathbb{E}_{\mu^\pi_k} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{Since } (1 - \gamma) \textstyle\sum_{t=k+1}^\infty \gamma^t = \gamma^{k+1} \text{. Then rename } k \text{ as } t \\
+      &= \gamma \sum_{t=0}^\infty \gamma^t\, \mathbb{E}_{\mu^\pi_t} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big] \\
+      &\quad \text{From (D)} \\
+      &= \frac{\gamma}{1 - \gamma}\, \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \Big]
+      \end{aligned}$$
+    </p>
+  </div>
+
+  <p class="ap">
+    Setting the function-space reward update step size to $\epsilon = \nicefrac{1}{\omega}$, the max-ent policy update
+    $$\underset{\pi}{\arg\max} \; \mathbb{E}_{\rho_\pi(\mathbf{s})} \Big[ H\big(\pi(\mathbf{a}|\mathbf{s})\big) + \mathbb{E}_{\pi} \Big[ \Big( \mathcal{U}_{\epsilon}^{\rho^{(i)}} \Big) r^{(i)}(\mathbf{s},\mathbf{a}) \Big] \Big]$$
+    is an entropic MD update on the state-action occupancy, up to the deviation term $\mathcal{K}$. If the policy update enforces the trust region $\mathbb{E}_{\rho_\pi(\mathbf{s})} \big[ \mathrm{KL}\big( \pi(\mathbf{a}|\mathbf{s}) \,\|\, \pi^{(i)}(\mathbf{a}|\mathbf{s}) \big) \big] \leq \zeta$, then $\mathcal{K} \leq \nicefrac{\gamma \zeta}{(1 - \gamma)}$. <strong>Does enforcing a trust region constraint help in the IRL setting? ... YES! See <a href="https://anishhdiwan.github.io/trust-region-irl/">Trust Region IRL</a>.</strong>
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="references" class="section-label ap">References</h2>
+
+  <ol class="ref-list ap" id="ref-list"></ol>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       CITATION
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="cite" class="section-label ap" data-toc="off">Citation</h2>
+
+  <pre class="ap">@inproceedings{diwan2026geometric,
+  title     = {A Geometric Perspective on Reward Function Updates in Inverse Reinforcement Learning},
+  author    = {Diwan, Anish and Peters, Jan and Arenz, Oleg},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</pre>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTNOTES
+       ═══════════════════════════════════════════════════════ -->
+  <h2 id="footnotes" class="section-label ap">Footnotes</h2>
+
+  <ol class="ref-list fn-list ap" id="fn-list"></ol>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       APPENDIX
+       ═══════════════════════════════════════════════════════ -->
+  <!-- <h2 class="section-label ap">Appendix: Probability & Optimization Refresher</h2>
+
+  <h3 class="sub-label ap">Convexity</h3>
+
+  <p class="ap">
+    <strong>Convexity.</strong> A function $f : \mathbb{R}^d \to \mathbb{R}$ is convex if for all $\mathbf{x}, \mathbf{y} \in \mathbb{R}^d$ and $\alpha \in [0, 1]$,
+    $$f(\alpha \mathbf{x} + (1-\alpha) \mathbf{y}) \leq \alpha f(\mathbf{x}) + (1-\alpha) f(\mathbf{y}),$$
+    i.e. the function lies on or below every chord. If $f$ is differentiable, this is equivalent to $f$ lying on or above every tangent,
+    $f(\mathbf{y}) \geq f(\mathbf{x}) + \nabla f(\mathbf{x})^\intercal (\mathbf{y} - \mathbf{x})$. If $f$ is twice differentiable, it is convex if and only if its
+    Hessian is positive semi-definite everywhere, $\nabla^2 f(\mathbf{x}) \succeq 0$. A function $f$ is concave if $-f$ is convex, so maximizing a
+    concave function over a convex set is a convex optimization problem.
+  </p>
+
+  <p class="ap">
+    <strong>Strict and strong convexity.</strong> A convex function may contain flat regions (a linear function, for example, is convex), and may therefore
+    have many minimisers. Strict convexity rules this out: the chord inequality holds strictly for $\mathbf{x} \neq \mathbf{y}$ and $\alpha \in (0, 1)$, so $f$ has
+    no flat segments and any minimiser is unique. It does not, however, bound how sharply $f$ curves; $f(x) = x^4$, for instance, is strictly convex yet
+    almost flat near its minimum. Strong convexity provides such a bound. $f$ is $m$-strongly convex ($m > 0$) if, everywhere, it curves at least as much as
+    a quadratic bowl of curvature $m$,
+    $f(\mathbf{y}) \geq f(\mathbf{x}) + \nabla f(\mathbf{x})^\intercal (\mathbf{y} - \mathbf{x}) + \tfrac{m}{2} \|\mathbf{y} - \mathbf{x}\|_2^2$,
+    which for twice-differentiable $f$ means $\nabla^2 f(\mathbf{x}) \succeq m I$. The larger $m$, the more sharply $f$ rises away from its minimum.
+    If $f$ is also $L$-smooth (its Hessian's eigenvalues are at most $L$), the condition number $\kappa = \nicefrac{L}{m}$ governs how fast first-order
+    methods such as gradient descent converge.
+  </p>
+
+  <h3 class="sub-label ap">Properties of Exponential Family Distributions</h3>
+
+  <h3 class="sub-label ap">Linear Algebra</h3> -->
+
+  <h2 class="section-label ap">Appendix: Derivations</h2>
+
+  <h3 class="sub-label ap">MaxEnt IRL by Reverse-KL Divergence Minimization</h3>
+
+  <div class="thm-block ap" id="derivation-maxent-irl">
+    <div class="thm-block__label">Derivation</div>
+    <p class="ap">
+      We derive the Lagrangian dual of Eq. (2) following \cite{arenz2016optimal}, in the stationary, $\gamma$-discounted setting and directly in
+      state-action space. We optimise over the policy $\pi(\mathbf{a}|\mathbf{s})$ and treat its state occupancy $\rho_\pi(\mathbf{s})$ and state-action occupancy
+      $\rho_\pi(\mathbf{s},\mathbf{a})$ as separate variables, tied to the policy by constraints. This decouples the entropy term from the KL term.
+    </p>
+
+    <p class="ap">
+      <strong>Primal.</strong>
+      $$\begin{aligned}
+        \max_{\pi,\, \rho_\pi} \quad & \mathbb{E}_{\rho_\pi(\mathbf{s})} \big[ H(\pi(\mathbf{a}|\mathbf{s})) \big]
+          - \beta\, \mathbb{E}_{\rho_\pi(\mathbf{s},\mathbf{a})} \left[ \log \frac{\rho_\pi(\mathbf{s},\mathbf{a})}{\rho_E(\mathbf{s},\mathbf{a})} \right] \\
+        \text{s.t.} \quad & \rho_\pi(\mathbf{s}') = (1-\gamma)\, \mu_0(\mathbf{s}') + \gamma\, \mathbb{E}_{\rho_\pi(\mathbf{s})\pi(\mathbf{a}|\mathbf{s})} \big[ \mathcal{P}(\mathbf{s}'|\mathbf{s},\mathbf{a}) \big] \quad \forall \mathbf{s}', \\
+        & \rho_\pi(\mathbf{s},\mathbf{a}) = \rho_\pi(\mathbf{s})\, \pi(\mathbf{a}|\mathbf{s}) \quad \forall \mathbf{s}, \mathbf{a}, \\
+        & \textstyle \sum_{\mathbf{a}} \pi(\mathbf{a}|\mathbf{s}) = 1 \quad \forall \mathbf{s}, \qquad \sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s},\mathbf{a}) = 1.
+      \end{aligned}$$
+      The first constraint (Bellman flow) makes $\rho_\pi(\mathbf{s})$ the normalized discounted state occupancy of $\pi$, and the second makes
+      $\rho_\pi(\mathbf{s},\mathbf{a})$ its state-action occupancy, so the primal is exactly Eq. (2).
+    </p>
+
+    <p class="ap">
+      <strong>Lagrangian.</strong> With multipliers $V(\mathbf{s})$ for the flow constraints, $r(\mathbf{s},\mathbf{a})$ for the consistency constraints, and
+      $\lambda(\mathbf{s})$, $\lambda$ for the normalizations (we only write $\pi$ and $r$ as arguments),
+      $$\begin{aligned}
+        \mathcal{L}(\pi, r) = {} & \mathbb{E}_{\rho_\pi(\mathbf{s})\pi(\mathbf{a}|\mathbf{s})} \big[ -\log \pi(\mathbf{a}|\mathbf{s}) \big]
+          - \beta\, \mathbb{E}_{\rho_\pi(\mathbf{s},\mathbf{a})} \left[ \log \frac{\rho_\pi(\mathbf{s},\mathbf{a})}{\rho_E(\mathbf{s},\mathbf{a})} \right] \\
+        & + \sum_{\mathbf{s}'} V(\mathbf{s}') \Big( (1-\gamma)\, \mu_0(\mathbf{s}') + \gamma\, \mathbb{E}_{\rho_\pi(\mathbf{s})\pi(\mathbf{a}|\mathbf{s})} \big[ \mathcal{P}(\mathbf{s}'|\mathbf{s},\mathbf{a}) \big] - \rho_\pi(\mathbf{s}') \Big) \\
+        & + \sum_{\mathbf{s},\mathbf{a}} r(\mathbf{s},\mathbf{a}) \big( \rho_\pi(\mathbf{s})\, \pi(\mathbf{a}|\mathbf{s}) - \rho_\pi(\mathbf{s},\mathbf{a}) \big)
+          + \sum_{\mathbf{s}} \lambda(\mathbf{s}) \Big( 1 - \textstyle\sum_{\mathbf{a}} \pi(\mathbf{a}|\mathbf{s}) \Big)
+          + \lambda \Big( 1 - \textstyle\sum_{\mathbf{s},\mathbf{a}} \rho_\pi(\mathbf{s},\mathbf{a}) \Big).
+      \end{aligned}$$
+      The multiplier of the consistency constraint plays the role of the reward function, and that of the flow constraint the role of the value function.
+    </p>
+
+    <p class="ap">
+      <strong>Policy.</strong> Setting $\partial \mathcal{L} / \partial \pi(\mathbf{a}|\mathbf{s}) = 0$ gives
+      $$\rho_\pi(\mathbf{s}) \Big( -1 - \log \pi(\mathbf{a}|\mathbf{s}) + r(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} \big[ V(\mathbf{s}') \big] \Big) - \lambda(\mathbf{s}) = 0.$$
+      With $Q(\mathbf{s},\mathbf{a}) = r(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} [ V(\mathbf{s}') ]$,
+      and $\lambda(\mathbf{s})$ chosen to normalize the policy,
+      $$\pi_r(\mathbf{a}|\mathbf{s}) = \frac{\exp\big(Q(\mathbf{s},\mathbf{a})\big)}{\sum_{\mathbf{a}'} \exp\big(Q(\mathbf{s},\mathbf{a}')\big)}.$$
+    </p>
+
+    <p class="ap">
+      <strong>Value function.</strong> Setting $\partial \mathcal{L} / \partial \rho_\pi(\mathbf{s}) = 0$ gives
+      $V(\mathbf{s}) = \mathbb{E}_{\pi(\mathbf{a}|\mathbf{s})} \big[ Q(\mathbf{s},\mathbf{a}) - \log \pi(\mathbf{a}|\mathbf{s}) \big]$, which for $\pi_r$ is the soft Bellman equation
+      $$V(\mathbf{s}) = \log \sum_{\mathbf{a}} \exp\big(Q(\mathbf{s},\mathbf{a})\big), \qquad \text{so} \qquad \pi_r(\mathbf{a}|\mathbf{s}) = \exp\big(Q(\mathbf{s},\mathbf{a}) - V(\mathbf{s})\big).$$
+      Hence $V$ and $Q$ are the soft value functions of the reward $r$, and $\pi_r$ is its maximum entropy optimal policy.
+    </p>
+
+    <p class="ap">
+      <strong>Target occupancy.</strong> Setting $\partial \mathcal{L} / \partial \rho_\pi(\mathbf{s},\mathbf{a}) = 0$ gives
+      $-\beta \big( \log \nicefrac{\rho_\pi(\mathbf{s},\mathbf{a})}{\rho_E(\mathbf{s},\mathbf{a})} + 1 \big) - r(\mathbf{s},\mathbf{a}) - \lambda = 0$, and normalizing,
+      $$\rho_{\hat{\pi}}(\mathbf{s},\mathbf{a}) = \frac{\rho_E(\mathbf{s},\mathbf{a}) \exp\big(-r(\mathbf{s},\mathbf{a})/\beta\big)}{\mathbb{E}_{\rho_E(\mathbf{s}',\mathbf{a}')} \big[ \exp\big(-r(\mathbf{s}',\mathbf{a}')/\beta\big) \big]},$$
+      the regularized target occupancy of Eq. (3).
+    </p>
+
+    <p class="ap">
+      <strong>Dual.</strong> Inserting $\pi_r$ and $\rho_{\hat{\pi}}$ into $\mathcal{L}$, every term multiplying $\rho_\pi(\mathbf{s})$ vanishes by the soft Bellman equation, the
+      normalization terms vanish, and the remaining occupancy terms reduce to $\beta \log \mathbb{E}_{\rho_E(\mathbf{s},\mathbf{a})}[\exp(-r(\mathbf{s},\mathbf{a})/\beta)]$. The Lagrangian dual is therefore
+      $$\mathcal{G}(r) = (1-\gamma)\, \mathbb{E}_{\mu_0(\mathbf{s})} \big[ V(\mathbf{s}) \big] + \beta \log \mathbb{E}_{\rho_E(\mathbf{s},\mathbf{a})} \big[ \exp\big(-r(\mathbf{s},\mathbf{a})/\beta\big) \big],$$
+      where $V$ is the soft value function of $r$. The dual problem is $\min_{r} \mathcal{G}(r)$, and by strong duality its optimum equals that of the primal.
+      Since the derivative of $(1-\gamma)\, \mathbb{E}_{\mu_0(\mathbf{s})}[V(\mathbf{s})]$ with respect to $r(\mathbf{s},\mathbf{a})$ is the occupancy $\rho_{\pi_r}(\mathbf{s},\mathbf{a})$ of $\pi_r$,
+      $$\frac{\partial \mathcal{G}}{\partial r(\mathbf{s},\mathbf{a})} = \rho_{\pi_r}(\mathbf{s},\mathbf{a}) - \rho_{\hat{\pi}}(\mathbf{s},\mathbf{a}).$$
+      For a reward that is linear in the features, $r(\mathbf{s},\mathbf{a}) = \theta^\intercal \psi(\mathbf{s},\mathbf{a})$, the gradient of the dual with respect to $\theta$ is \cite{arenz2016optimal}
+      $$\nabla_\theta \mathcal{G} = \mathbb{E}_{\rho_{\pi_r}(\mathbf{s},\mathbf{a})} \big[ \psi(\mathbf{s},\mathbf{a}) \big] - \mathbb{E}_{\rho_{\hat{\pi}}(\mathbf{s},\mathbf{a})} \big[ \psi(\mathbf{s},\mathbf{a}) \big].$$
+    </p>
+
+    <p class="ap">
+      <strong>Optimal solution.</strong> At the optimum the gradient vanishes, so $\rho_{\pi^\star}(\mathbf{s},\mathbf{a}) = \rho_{\hat{\pi}}(\mathbf{s},\mathbf{a})$, i.e.
+      $r^\star(\mathbf{s},\mathbf{a}) = \beta \log \nicefrac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})} + c$ for a constant $c$.
+      Shifting $r$ by a constant $c$ shifts $V$ by $\nicefrac{c}{1-\gamma}$ and leaves $\mathcal{G}$ unchanged, so we may take $c = 0$. The optimal reward and policy are
+      $$r^\star(\mathbf{s},\mathbf{a}) = \beta \log \frac{\rho_E(\mathbf{s},\mathbf{a})}{\rho_{\pi^\star}(\mathbf{s},\mathbf{a})}, \qquad
+        \pi^\star(\mathbf{a}|\mathbf{s}) = \pi_{r^\star}(\mathbf{a}|\mathbf{s}) = \exp\big( Q^\star(\mathbf{s},\mathbf{a}) - V^\star(\mathbf{s}) \big),$$
+      where $Q^\star(\mathbf{s},\mathbf{a}) = r^\star(\mathbf{s},\mathbf{a}) + \gamma\, \mathbb{E}_{\mathbf{s}' \sim \mathcal{P}(\cdot|\mathbf{s},\mathbf{a})} [ V^\star(\mathbf{s}') ]$ and
+      $V^\star(\mathbf{s}) = \log \sum_{\mathbf{a}} \exp\big(Q^\star(\mathbf{s},\mathbf{a})\big)$.
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="site-footer ap">
+    <p>
+      Correspondence:
+      <a href="mailto:anish.diwan@robot-learning.de">anish.diwan@robot-learning.de</a>
+      &ensp;&middot;&ensp; NeurIPS 2026
+    </p>
+  </footer>
+
+</div><!-- /page -->
+
+<!-- Interactive figures (the Θ-space figure is shared with index.html) -->
+<script src="dynamic/figures/two-state-mdp.js?v=1"></script>
+<script src="dynamic/figures/plot-box.js?v=1"></script>
+<script src="dynamic/figures/two-state-irl.js?v=1"></script>
+<script src="dynamic/figures/expert-density.js?v=1"></script>
+<script src="dynamic/figures/two-state.js?v=1"></script>
+<script src="dynamic/figures/policy-pad.js?v=1"></script>
+<script src="dynamic/figures/occupancy.js?v=1"></script>
+<script src="dynamic/figures/occupancy-match.js?v=1"></script>
+<script src="dynamic/figures/concavity.js?v=1"></script>
+<script src="dynamic/figures/update-race.js?v=1"></script>
+<script src="dynamic/figures/ngd-metric.js?v=1"></script>
+<script src="dynamic/figures/bregman.js?v=1"></script>
+<script src="dynamic/figures/md-primal-dual.js?v=1"></script>
+<script src="dynamic/figures/curvature-compare.js?v=1"></script>
+<script src="dynamic/figures/theta-space.js?v=1"></script>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+  // ── Footnotes: \footnote{…} in the text → superscript number + entry under Footnotes ──
+  // Runs before MathJax and \cite (below), so a note may contain $…$ maths and \cite{…}.
+  // Plain text only (no HTML tags inside the braces); escaped \{ \} are fine.
+  // Hovering or focusing the number shows the note in a small popup.
+  (function () {
+    const list = document.getElementById('fn-list');
+    if (!list) return;
+    const walker = document.createTreeWalker(document.querySelector('.page'), NodeFilter.SHOW_TEXT, {
+      acceptNode: n => n.nodeValue.includes('\\footnote{') && !n.parentElement.closest('pre, code, script, style')
+        ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+    });
+    const found = [];
+    while (walker.nextNode()) found.push(walker.currentNode);
+
+    const OPEN = '\\footnote{';
+    let count = 0;
+    // Inside maths (between $…$ or $$…$$) a footnote becomes a linked superscript in the TeX,
+    // {}^{\href{#fn-n}{n}}, so MathJax typesets it; elsewhere it becomes a <sup> link.
+    const inMath = text => {
+      const display = text.split('$$').length - 1;
+      if (display % 2) return true;
+      return ((text.replace(/\$\$/g, '').match(/(^|[^\\])\$/g) || []).length % 2) === 1;
+    };
+    found.forEach(node => {
+      const src = node.nodeValue, frag = document.createDocumentFragment();
+      let i = 0, k, emitted = '', pending = '';
+      while ((k = src.indexOf(OPEN, i)) !== -1) {
+        let j = k + OPEN.length, depth = 1;                     // find the matching }
+        for (; j < src.length && depth; j++) {
+          if (src[j] === '\\') { j++; continue; }               // skip escaped characters
+          if (src[j] === '{') depth++; else if (src[j] === '}') depth--;
+        }
+        if (depth) break;                                       // unbalanced: leave as text
+        const n = ++count, before = src.slice(i, k);
+        if (inMath(emitted + pending + before)) {
+          pending += before + '{}^{\\href{#fn-' + n + '}{' + n + '}}';
+        } else {
+          const text = (pending + before).replace(/\s+$/, '');   // no gap before the number
+          frag.append(text); emitted += text; pending = '';
+          const sup = document.createElement('sup');
+          sup.className = 'fn-ref';
+          sup.innerHTML = '<a href="#fn-' + n + '" id="fnref-' + n + '" aria-describedby="fn-' + n + '">' + n + '</a>';
+          frag.append(sup);
+        }
+        const li = document.createElement('li');
+        li.id = 'fn-' + n;
+        li.append(src.slice(k + OPEN.length, j - 1) + ' ');
+        li.insertAdjacentHTML('beforeend', '<a href="#fnref-' + n + '" class="fn-back" aria-label="Back to the text">↩</a>');
+        list.append(li);
+        i = j;
+      }
+      frag.append(pending + src.slice(i));
+      node.replaceWith(frag);
+    });
+
+    if (!count) {                                               // no footnotes: drop the section
+      document.getElementById('footnotes')?.remove();
+      list.remove();
+      return;
+    }
+
+    // Popup: a copy of the (by then typeset) list entry, without the back link
+    const pop = document.createElement('div');
+    pop.className = 'fn-pop';
+    pop.setAttribute('role', 'tooltip');
+    pop.hidden = true;
+    document.body.append(pop);
+    let timer;
+    const hide = () => { pop.hidden = true; };
+    const later = () => { clearTimeout(timer); timer = setTimeout(hide, 150); };
+    const show = a => {
+      clearTimeout(timer);
+      pop.innerHTML = document.getElementById(a.hash.slice(1)).innerHTML;
+      pop.querySelector('.fn-back')?.remove();
+      pop.hidden = false;
+      const r = a.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+      pop.style.left = Math.max(12, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 12)) + 'px';
+      pop.style.top = (r.bottom + 8 + h < innerHeight ? r.bottom + 8 : Math.max(12, r.top - h - 8)) + 'px';
+    };
+    // Delegated, so links inside typeset maths (created by MathJax later) work too
+    const fnLink = t => t && t.closest && t.closest('a[href^="#fn-"]:not(.fn-back)');
+    ['mouseover', 'focusin'].forEach(ev => document.addEventListener(ev, e => { const a = fnLink(e.target); if (a) show(a); }));
+    ['mouseout', 'focusout'].forEach(ev => document.addEventListener(ev, e => {
+      const a = fnLink(e.target); if (a && !a.contains(e.relatedTarget)) later();
+    }));
+    pop.addEventListener('mouseenter', () => clearTimeout(timer));    // move into the popup to select or click
+    pop.addEventListener('mouseleave', later);
+    addEventListener('scroll', hide, { passive: true });
+    addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+  })();
+
+  // ── BibTeX → numbered reference list + [n] in-text citations ──
+  (function () {
+    function parseBibtex(src) {
+      const entries = [];
+      let i = 0;
+      while ((i = src.indexOf('@', i)) !== -1) {
+        const head = /^@(\w+)\s*\{\s*([^,\s]+)\s*,/.exec(src.slice(i));
+        if (!head || /^(comment|string|preamble)$/i.test(head[1])) { i++; continue; }
+        let j = i + head[0].length;
+        const fields = {};
+        while (j < src.length) {
+          while (j < src.length && /[\s,]/.test(src[j])) j++;
+          if (src[j] === '}') { j++; break; }
+          const f = /^([\w-]+)\s*=\s*/.exec(src.slice(j));
+          if (!f) break;
+          j += f[0].length;
+          let val = '';
+          if (src[j] === '{' || src[j] === '"') {
+            const close = src[j] === '{' ? '}' : '"';
+            let depth = 0, k = j + 1;
+            while (k < src.length && !(src[k] === close && depth === 0)) {
+              if (src[k] === '{') depth++;
+              else if (src[k] === '}') depth--;
+              k++;
+            }
+            val = src.slice(j + 1, k);
+            j = k + 1;
+          } else {
+            val = (/^[^,}\s]+/.exec(src.slice(j)) || [''])[0];
+            j += val.length;
+          }
+          fields[f[1].toLowerCase()] = val.replace(/\s+/g, ' ').trim();
+        }
+        entries.push({ key: head[2], type: head[1].toLowerCase(), fields });
+        i = j;
+      }
+      return entries;
+    }
+
+    const ACCENTS = { '"': '̈', "'": '́', '`': '̀', '^': '̂',
+                      '~': '̃', 'v': '̌', 'c': '̧', 'u': '̆' };
+    function tex(s) {
+      if (!s) return '';
+      s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      s = s.replace(/\\href\s*\{([^}]*)\}\s*\{([^}]*)\}/g, (_, u, t) => '\u0001' + u + '\u0002' + t + '\u0003');
+      s = s.replace(/\\url\s*\{([^}]*)\}/g, (_, u) => '\u0001' + u + '\u0002' + u + '\u0003');
+      s = s.replace(/\{?\\(["'`^~vcu])\s*\{?\\?(\w)\}?\}?/g, (_, a, ch) => ch + ACCENTS[a]);
+      s = s.replace(/\\&amp;/g, '&amp;').replace(/\\([%$#_])/g, '$1');
+      s = s.replace(/---/g, '—').replace(/--/g, '–').replace(/~/g, ' ');
+      s = s.replace(/\\(emph|textit|textbf|textsc|mathrm|text)\s*/g, '');
+      s = s.replace(/[{}]/g, '');
+      s = s.replace(/\u0001([^\u0002]*)\u0002([^\u0003]*)\u0003/g, '<a href="$1">$2</a>');
+      return s.normalize('NFC');
+    }
+
+    function names(authors) {
+      const list = authors.split(/\s+and\s+/i).map(a => {
+        a = a.trim();
+        if (/^others$/i.test(a)) return 'et al.';
+        const parts = a.split(',').map(p => p.trim());
+        return parts.length > 1 ? parts.slice(1).join(' ') + ' ' + parts[0] : a;
+      }).map(tex);
+      if (list[list.length - 1] === 'et al.' && list.length > 1)          // "… and others" → "…, et al."
+        return list.slice(0, -1).join(', ') + ', et al.';
+      if (list.length <= 1) return list.join('');
+      if (list.length === 2) return list.join(' and ');
+      return list.slice(0, -1).join(', ') + ', and ' + list[list.length - 1];
+    }
+
+    function format(e) {
+      const f = e.fields;
+      const venue = [f.booktitle, f.journal].find(v => v && v.trim() !== '.');
+      let loc = f.volume ? f.volume + (f.number ? '(' + f.number + ')' : '') : '';
+      if (f.pages) loc += (loc ? ':' : 'pages ') + f.pages;
+      const out = [];
+      if (f.author) { const n = names(f.author); out.push(n.endsWith('.') ? n : n + '.'); }
+      if (f.title) out.push(tex(f.title) + '.');
+      const tail = [venue ? '<em>' + tex(venue) + '</em>' : '', tex(loc), f.year || ''].filter(Boolean);
+      if (tail.length) out.push(tail.join(', ') + '.');
+      if (f.url) out.push('<a href="' + f.url + '">Link</a>.');
+      if (f.note) out.push(tex(f.note) + '.');
+      return out.join(' ');
+    }
+
+    // \cite{key} / \cite{key1,key2} in the text → <span class="cite" data-cite="…">.
+    // Runs before MathJax (which only reads $…$ maths), so \cite is never seen as TeX.
+    const walker = document.createTreeWalker(document.querySelector('.page'), NodeFilter.SHOW_TEXT, {
+      acceptNode: n => /\\cite\{/.test(n.nodeValue) && !n.parentElement.closest('pre, code, script, style')
+        ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT,
+    });
+    const found = [];
+    while (walker.nextNode()) found.push(walker.currentNode);
+    found.forEach(n => {
+      const frag = document.createDocumentFragment();
+      n.nodeValue.split(/(\\cite\{[^}]*\})/).forEach(part => {
+        const m = /^\\cite\{([^}]*)\}$/.exec(part);
+        if (m) {
+          const span = document.createElement('span');
+          span.className = 'cite';
+          span.dataset.cite = m[1];
+          frag.appendChild(span);
+        } else if (part) {
+          frag.appendChild(document.createTextNode(part));
+        }
+      });
+      n.replaceWith(frag);
+    });
+
+    // Bibliography: references.bib, fetched on load (bump ?v= after editing it)
+    const listEl = document.getElementById('ref-list');
+    fetch('references.bib?v=1')
+      .then(r => (r.ok ? r.text() : Promise.reject(r.status)))
+      .then(src => {
+        const entries = parseBibtex(src);
+        const byKey = Object.fromEntries(entries.map(e => [e.key, e]));
+
+        // Number in order of first citation, then any uncited entries
+        const cites = [...document.querySelectorAll('.cite[data-cite]')];
+        const order = [];
+        cites.forEach(c => c.dataset.cite.split(',').map(k => k.trim())
+          .forEach(k => { if (byKey[k] && !order.includes(k)) order.push(k); }));
+        entries.forEach(e => { if (!order.includes(e.key)) order.push(e.key); });
+
+        order.forEach(k => {
+          const li = document.createElement('li');
+          li.id = 'ref-' + k;
+          li.innerHTML = format(byKey[k]);
+          listEl.appendChild(li);
+        });
+
+        cites.forEach(c => {
+          const keys = c.dataset.cite.split(',').map(k => k.trim());
+          c.innerHTML = '[' + keys.map(k => {
+            const n = order.indexOf(k) + 1;
+            return n ? '<a href="#ref-' + k + '" title="' + k + '">' + n + '</a>' : '?';
+          }).join(', ') + ']';
+        });
+      })
+      .catch(() => {                  // e.g. opened as a local file: fetch needs a web server
+        listEl.innerHTML = '<li>Could not load references.bib (serve the site over http, not file://).</li>';
+      });
+  })();
+
+  // ── Table of contents — sections (h2.section-label) with nested
+  //    subsections (h3.sub-label), in page order. Rebuilt on every load,
+  //    so new headings appear automatically.
+  (function () {
+    const toc = document.getElementById('toc');
+    if (!toc) return;
+    const slug = t => t.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const used = new Set([...document.querySelectorAll('[id]')].map(e => e.id));
+    const heads = [...document.querySelectorAll('h2.section-label, h3.sub-label')]
+      .filter(h => (toc.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING)
+                   && h.dataset.toc !== 'off');
+    const list = document.createElement('ol');
+    let sub = null;
+    heads.forEach(h => {
+      if (!h.id) {
+        let id = slug(h.textContent) || 'section', n = 2;
+        while (used.has(id)) id = slug(h.textContent) + '-' + n++;
+        h.id = id; used.add(id);
+      }
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.trim();
+      li.appendChild(a);
+      if (h.tagName === 'H2') {
+        list.appendChild(li);
+        sub = null;
+      } else {
+        const parent = list.lastElementChild;
+        if (!parent) { list.appendChild(li); return; }
+        if (!sub) { sub = document.createElement('ol'); parent.appendChild(sub); }
+        sub.appendChild(li);
+      }
+    });
+    toc.appendChild(list);
+  })();
+
+  // Scroll-triggered fade-in
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.ap').forEach((el, i) => {
+    el.style.transitionDelay = `${Math.min(i * 0.035, 0.28)}s`;
+    io.observe(el);
+  });
+
+  // Dark-mode toggle — persists across pages via localStorage
+  const btn  = document.getElementById('theme-btn');
+  const icon = btn.querySelector('i');
+  if (document.documentElement.classList.contains('dark')) {
+    icon.className = 'fas fa-sun';
+  }
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('trirl-theme', dark ? 'dark' : 'light');
+    icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+  });
+
+  // Sticky nav — same items as the sticky nav on index.html, with "Theory"
+  // replaced by "Main Page". Main-page sections link back to index.html;
+  // Citation scrolls to this page's own citation block.
+  // Keep in sync if sections on index.html are added or renamed.
+  const stickyNav = document.createElement('nav');
+  stickyNav.className = 'sticky-nav';
+
+  [
+    ['Abstract',    'index.html#abstract'],
+    ['Key Results', 'index.html#key-results'],
+    ['Main Page',   'index.html'],
+    ['Citation',    '#cite'],
+  ].forEach(([label, href]) => {
+    const a = document.createElement('a');
+    a.href = href;
+    a.className = 'sticky-nav__link';
+    a.textContent = label;
+    if (!href.startsWith('#')) {   // other page → new tab
+      a.target = '_blank';
+      a.rel = 'noopener';
+    }
+    stickyNav.appendChild(a);
+  });
+
+  const sep = document.createElement('span');
+  sep.className = 'sticky-nav__sep';
+  stickyNav.appendChild(sep);
+
+  btn.parentNode.removeChild(btn);
+  stickyNav.appendChild(btn);
+
+  document.body.appendChild(stickyNav);
+
+  // Reading options (this page only): a second bubble right under the sticky nav.
+  //  · "Contents" jumps to the contents list (#toc).
+  //  · "Skip background" jumps to the A Geometric Picture of IRL section (#param-spaces).
+  //  · "Disable basics" hides every element marked data-basics — add that attribute to any
+  //    element to include it. The choice is remembered in this browser.
+  const readNav = document.createElement('nav');
+  readNav.className = 'sticky-nav sticky-nav--sub';
+  readNav.setAttribute('aria-label', 'Reading options');
+  const skip = document.createElement('a');
+  skip.href = '#param-spaces';
+  skip.className = 'sticky-nav__link';
+  skip.textContent = 'Skip background';
+  const basics = document.createElement('button');
+  basics.type = 'button';
+  basics.className = 'sticky-nav__link sticky-nav__toggle';
+  basics.textContent = 'Disable basics';
+  const setBasics = off => {
+    document.body.classList.toggle('hide-basics', off);
+    basics.classList.toggle('is-active', off);
+    basics.setAttribute('aria-pressed', off);
+    try { localStorage.setItem('theory-hide-basics', off ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+  };
+  basics.addEventListener('click', () => setBasics(!document.body.classList.contains('hide-basics')));
+  let hideBasics = false;
+  try { hideBasics = localStorage.getItem('theory-hide-basics') === '1'; } catch (e) { /* storage unavailable */ }
+  setBasics(hideBasics);
+  const contents = document.createElement('a');
+  contents.href = '#toc';
+  contents.className = 'sticky-nav__link';
+  contents.textContent = 'Contents';
+  readNav.append(contents, skip, basics);
+  document.body.appendChild(readNav);
+  const placeReadNav = () => { readNav.style.top = (stickyNav.offsetTop + stickyNav.offsetHeight + 8) + 'px'; };
+  placeReadNav();
+  addEventListener('resize', placeReadNav);
+
+  // In-text links to a figure (<a class="fig-ref" href="#fig-…">): hovering the link
+  // subtly highlights the figure it points to.
+  document.querySelectorAll('a.fig-ref[href^="#"]').forEach(a => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (!target) return;
+    ['mouseenter', 'focus'].forEach(ev => a.addEventListener(ev, () => target.classList.add('is-referenced')));
+    ['mouseleave', 'blur'].forEach(ev => a.addEventListener(ev, () => target.classList.remove('is-referenced')));
+  });
+
+  // Links to another page (buttons, text links, nav) open in a new tab.
+  // Same-page anchors (#...), mailto: and the "← Back" link are left as is.
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href.startsWith('#') || href.startsWith('mailto:') || a.classList.contains('nav-back')) return;
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+</script>
+
+</body>
+</html>

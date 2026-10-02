@@ -1,0 +1,2070 @@
+/* ══════════════════════════════════════════════════════════════
+ * GEOMETRIC PERSPECTIVE PAPER SITE — MASTER STYLESHEET
+ * ══════════════════════════════════════════════════════════════
+ *
+ * ┌─────────────────────────────────────────────────────────┐
+ * │  SECTION 1 · CONFIG  — edit only this section           │
+ * │  to restyle the entire site.                            │
+ * └─────────────────────────────────────────────────────────┘
+ *
+ * All colours, fonts, sizes, and radii live here as CSS
+ * custom properties. Everything below this block references
+ * them exclusively — change a value once, it applies site-wide.
+ * ══════════════════════════════════════════════════════════════ */
+
+:root {
+
+  /* ── FONTS ────────────────────────────────────────────────────
+   * --font-heading : paper/post title only (the large h1).
+   * --font-body    : all other text.
+   * To change: 1) update the Google Fonts <link> in each HTML
+   *               file (look for the "FONT" comment in <head>).
+   *            2) update the family name(s) below.              */
+  --font-heading : 'Source Serif 4', Georgia, serif;
+  --font-body    : 'Inter', system-ui, sans-serif;
+  --font-mono    : 'DM Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* ── TYPE SCALE ──────────────────────────────────────────── */
+  --text-author_afils     : 16px;   /* authors and affiliations                */
+  --text-xs     : 11px;   /* tiny labels, badges                */
+  --text-sm     : 14px;   /* captions, metadata, footer         */
+  --text-base   : 16px;   /* body copy                          */
+  --text-lg     : 17px;   /* TL;DR, lead paragraph              */
+  --text-h1     : 32px;   /* paper title                        */
+  --text-h2     : 22px;   /* section labels (uppercase)         */
+  --text-stat   : 22px;   /* stat strip numbers                 */
+  --lh-base     : 1.72;   /* body line-height                   */
+  --lh-tight    : 1.22;   /* headings                           */
+
+  /* ── LAYOUT ──────────────────────────────────────────────── */
+  --page-w      : 1040px;    /* max content width — all pages    */
+  --page-pad    : 44px;     /* horizontal padding (desktop)     */
+  --page-pad-sm : 20px;     /* horizontal padding (mobile)      */
+  --page-pad-top   : 44px;  /* vertical padding — top           */
+  --page-pad-bottom: 88px;  /* vertical padding — bottom        */
+
+  /* ── RADII ───────────────────────────────────────────────── */
+  --r-sm        : 4px;
+  --r-md        : 6px;
+  --r-lg        : 9px;
+
+  /* ══════════════════════════════════════════════════════════
+   * COLOR PRESETS
+   * Uncomment exactly ONE preset block. Comment the others.
+   * Each block defines the full light AND dark palette — accent,
+   * surfaces, border, and dot — so one comment/uncomment switches
+   * both modes. Save and reload to apply.
+   * ══════════════════════════════════════════════════════════ */
+
+/* ── PRESET 1 · Powder Blue  (default) ───────────────────── */
+/* --c-accent      : #5b8fc9;   --c-accent-dark  : #7aaee0;
+--c-surf        : #f7f7f8;   --c-surf-dark    : #101320;
+--c-surf2       : #f1f4f9;   --c-surf2-dark   : #141828;
+--c-border-dk   : #1d2433;   --c-dot-dk       : #273040;
+--c-title-accent: #5b8fc9;   --c-title-accent-dark: #7aaee0; */
+
+/* ── PRESET 2 · Slate  (uncomment to try) ────────────────── */
+/* --c-accent      : #5f7592;   --c-accent-dark  : #8aaac4;
+   --c-surf        : #f7f8f8;   --c-surf-dark    : #101214;
+   --c-surf2       : #f1f3f6;   --c-surf2-dark   : #14171c;
+   --c-border-dk   : #1c2028;   --c-dot-dk       : #262c36;
+   --c-title-accent: #5f7592;   --c-title-accent-dark: #8aaac4; */
+
+/* ── PRESET 3 · Sage Green  (uncomment to try) ───────────── */
+/* --c-accent      : #4e7d68;   --c-accent-dark  : #72a891;
+   --c-surf        : #f7f8f7;   --c-surf-dark    : #0e1410;
+   --c-surf2       : #f1f5f3;   --c-surf2-dark   : #121814;
+   --c-border-dk   : #1a2620;   --c-dot-dk       : #24342c;
+   --c-title-accent: #4e7d68;   --c-title-accent-dark: #72a891; */
+
+/* ── PRESET 4 · Warm Sienna  (uncomment to try) ──────────── */
+/* --c-accent      : #b06b40;   --c-accent-dark  : #d4925e;
+   --c-surf        : #f8f7f6;   --c-surf-dark    : #140f0c;
+   --c-surf2       : #f5f0eb;   --c-surf2-dark   : #19130f;
+   --c-border-dk   : #261e18;   --c-dot-dk       : #332620;
+   --c-title-accent: #b06b40;   --c-title-accent-dark: #d4925e; */
+
+/* ── PRESET 5 · Charcoal  (monochrome) ───────────────────── */
+--c-accent      : #4a5568;   --c-accent-dark  : #7890a8;
+   --c-surf        : #f7f7f7;   --c-surf-dark    : #111214;
+   --c-surf2       : #efefef;   --c-surf2-dark   : #161819;
+   --c-border-dk   : #1e2024;   --c-dot-dk       : #282c32;
+   --c-title-accent: #4a5568;   --c-title-accent-dark: #7890a8;
+
+/* ── PRESET 6 · Mauve Fig  ─────────────────────────────────── */
+/* --c-accent      : #7a5264;   --c-accent-dark  : #d19ab0;
+   --c-surf        : #f8f7f8;   --c-surf-dark    : #111014;
+   --c-surf2       : #f2eff2;   --c-surf2-dark   : #17141b;
+   --c-border-dk   : #27222c;   --c-dot-dk       : #342d38;
+   --c-title-accent: #7a5264;   --c-title-accent-dark: #d19ab0; */
+
+/* ── PRESET 7 · Clean Slate (active) ────────────────────────── */
+/* --c-accent      : #3a6ea5;   --c-accent-dark  : #6fa3d0;
+--c-surf        : #f7f9fc;   --c-surf-dark    : #0e1318;
+--c-surf2       : #edf2f8;   --c-surf2-dark   : #131c26;
+--c-border-dk   : #1c2a38;   --c-dot-dk       : #263850;
+--c-title-accent: #3a6ea5;   --c-title-accent-dark: #6fa3d0; */
+
+
+  /* ── BASE PALETTE (shared by all presets) ─────────────────── */
+  --c-bg     : #ffffff;   /* page background                    */
+  --c-text   : #111111;   /* body text — near black             */
+  --c-head   : #050505;   /* headings & bold elements — black   */
+  --c-muted  : #444444;   /* secondary text — dark gray         */
+  --c-subtle : #777777;   /* tertiary text — medium gray        */
+  --c-border : #e0e4ea;   /* borders                            */
+  --c-dot    : #d0d8e4;   /* dot-grid dots in hero placeholder  */
+
+  /* ── FIGURE PALETTE — from the paper code (geometries.py, PLOT_CFG).
+   * Use these for every diagram so the site matches the paper. ── */
+  --fig-grad      : #DF1659;   /* vanilla gradient                   */
+  --fig-natF      : #9B59B6;   /* F-natural gradient, F ellipse      */
+  --fig-natH      : #1E90FF;   /* H-natural gradient (ours), H ellipse */
+  --fig-hess      : #F1C40F;   /* Hessian ellipse                    */
+  --fig-theta     : #000000;   /* θ path                             */
+  --fig-phi-rho   : #2ECC71;   /* φ_ρ path                           */
+  --fig-phi-hat   : #E072A4;   /* φ̂ path                             */
+  --fig-connector : #AAAAAA;   /* dashed connectors                  */
+}
+
+/* ── DARK MODE ────────────────────────────────────────────────
+   Only colour tokens override. Layout and type are inherited.
+   All per-preset colours (accent, surfaces, border, dot) resolve
+   from the active preset block — switch preset, both modes update. */
+html.dark {
+  --c-bg     : #0b0f16;
+  --c-surf   : var(--c-surf-dark);     /* from active preset */
+  --c-surf2  : var(--c-surf2-dark);    /* from active preset */
+  --c-accent : var(--c-accent-dark);   /* from active preset */
+  --c-text   : #e8edf4;
+  --c-head   : #f5f7fa;
+  --c-muted  : #a0adb8;
+  --c-subtle : #5a6a7a;
+  --c-border : var(--c-border-dk);     /* from active preset */
+  --c-dot    : var(--c-dot-dk);        /* from active preset */
+  --c-title-accent: var(--c-title-accent-dark);
+  --fig-theta: #e8edf4;                /* black θ path → light on dark */
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 2 · RESET & BASE
+ * ══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family   : var(--font-body);
+  font-size     : var(--text-base);
+  line-height   : var(--lh-base);
+  color         : var(--c-text);
+  background    : var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  transition    : background .3s ease, color .3s ease;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+a {
+  color           : var(--c-accent);
+  text-decoration : none;
+  border-bottom   : 1px solid var(--c-border);
+  transition      : border-color .15s;
+}
+a:hover { border-bottom-color: var(--c-accent); }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 3 · PAGE LAYOUT
+ * ══════════════════════════════════════════════════════════════ */
+
+.page {
+  max-width : var(--page-w);
+  margin    : 0 auto;
+  padding   : var(--page-pad-top) var(--page-pad) var(--page-pad-bottom);
+}
+
+/* blog posts use the same width as the main page (--page-w) */
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 4 · NAVIGATION BAR
+ * ══════════════════════════════════════════════════════════════ */
+
+.site-nav {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : center;
+  margin-bottom   : 36px;
+}
+
+.nav-back {
+  font-size   : var(--text-sm);
+  color       : var(--c-muted);
+  text-decoration: none;
+  border      : none;
+  transition  : color .2s;
+}
+.nav-back:hover { color: var(--c-accent); border: none; }
+
+.theme-btn {
+  background : none;
+  border     : none;
+  cursor     : pointer;
+  font-size  : 15px;
+  color      : var(--c-subtle);
+  padding    : 2px;
+  transition : color .2s;
+  line-height: 1;
+}
+.theme-btn:hover { color: var(--c-head); }
+
+/* ── Sticky section nav (built by JS from h2.section-label) ── */
+.sticky-nav {
+  position              : fixed;
+  top                   : 16px;
+  right                 : 20px;
+  display               : flex;
+  align-items           : center;
+  gap                   : 2px;
+  z-index               : 1000;
+  background            : rgba(255, 255, 255, 0.90);
+  backdrop-filter       : blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border                : 1px solid var(--c-border);
+  border-radius         : 100px;
+  padding               : 6px 10px;
+  box-shadow            : 0 1px 10px rgba(0, 0, 0, 0.07);
+}
+
+html.dark .sticky-nav {
+  background : rgba(11, 15, 22, 0.92);
+}
+
+.sticky-nav__link {
+  font-size      : 13px;
+  font-weight    : 600;
+  color          : var(--c-muted);
+  padding        : 6px 12px;
+  border-radius  : 100px;
+  text-decoration: none;
+  border         : none;
+  white-space    : nowrap;
+  line-height    : 1;
+  transition     : color .15s, background .15s;
+}
+.sticky-nav__link:hover {
+  color         : var(--c-head);
+  background    : var(--c-surf);
+  border-bottom : none;
+}
+
+.sticky-nav__sep {
+  width      : 1px;
+  height     : 16px;
+  background : var(--c-border);
+  flex-shrink: 0;
+  margin     : 0 4px;
+}
+
+.sticky-nav .theme-btn {
+  font-size : 18px;
+  padding   : 6px 10px;
+  color     : var(--c-muted);
+}
+.sticky-nav .theme-btn:hover { color: var(--c-head); }
+/* Phones: a smaller nav so it fits the screen */
+@media (max-width: 440px) {
+  .sticky-nav             { padding: 5px 7px; }
+  .sticky-nav__link       { font-size: 12px; padding: 6px 8px; }
+  .sticky-nav .theme-btn  { padding: 6px 8px; }
+}
+@media (max-width: 380px) {
+  .sticky-nav__link       { padding: 6px 6px; }
+  .sticky-nav__sep        { margin: 0 2px; }
+}
+
+/* Theory page: second bubble with reading options, right under the sticky nav
+   (its top is set by the page script from the first bubble's height) */
+.sticky-nav--sub     { top: 64px; }
+.sticky-nav__toggle  { background: none; font-family: inherit; cursor: pointer; }
+.sticky-nav__toggle.is-active { color: var(--c-head); background: var(--c-surf); box-shadow: inset 0 0 0 1px var(--c-border); }
+/* "Disable basics": hide everything marked data-basics */
+body.hide-basics [data-basics] { display: none !important; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 5 · PAGE HEADER ELEMENTS
+ * (venue tag, title, authors, affiliations)
+ * ══════════════════════════════════════════════════════════════ */
+
+/* ── Venue / badge tag ── */
+.venue-tag {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 10px;
+  color          : #18181b;
+  background     : #ffffff;
+  border         : 1px solid #e0e3e8;
+  border-radius  : var(--r-md);
+  padding        : 8px 14px 8px 11px;
+  margin-bottom  : 20px;
+  line-height    : 1;
+  box-shadow     : 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+.venue-tag__logo {
+  height      : 31px;
+  width       : auto;
+  display     : block;
+  flex-shrink : 0;
+}
+
+.venue-tag__meta {
+  font-size      : 17px;
+  font-weight    : 900;
+  letter-spacing : .10em;
+  color          : #18181b;
+  line-height    : 1;
+}
+
+/* ── "human written" tag (theory page) — low-key, button-shaped, in the site
+      accent (so it follows the preset and dark mode), just under the button row ── */
+.human-badge {
+  display        : block;
+  width          : fit-content;
+  font-size      : 12px;
+  font-weight    : 500;
+  line-height    : 1;
+  color          : var(--c-accent);
+  background     : color-mix(in oklab, var(--c-accent) 7%, var(--c-bg));
+  border         : 1px solid color-mix(in oklab, var(--c-accent) 25%, var(--c-bg));
+  border-radius  : var(--r-sm);
+  padding        : 5px 10px;
+  margin-top     : -20px;   /* tuck up under .btns (margin-bottom 32px) */
+}
+.human-badge + .tldr { margin-top: 14px; }
+
+/* ── Paper / post title ── */
+.site-title {
+  font-family  : var(--font-heading);
+  font-size    : var(--text-h1);
+  font-weight  : 700;
+  letter-spacing: -.01em;
+  line-height  : var(--lh-tight);
+  color        : var(--c-head);
+  margin-bottom: 16px;
+}
+/* Fragment inside the title — colour removed, inherits black */
+/* .title-accent { color: inherit; } */
+
+.title-accent {
+  color: var(--c-title-accent);
+}
+
+/* Smaller second line of a two-part title (e.g. theory page:
+   "Technical blog on" + paper title) */
+.site-title__sub {
+  display   : inline-block;
+  font-size : .88em;
+}
+
+
+/* ── Authors ── */
+.authors {
+  font-size    : var(--text-author_afils);
+  color        : var(--c-muted);
+  margin-bottom: 4px;
+}
+
+.authors a {
+  color         : inherit;
+  border-bottom : none;
+}
+
+.authors a:hover {
+  color         : var(--c-accent);
+  border-bottom : none;
+}
+
+/* ── Affiliations ── */
+.affils {
+  font-size    : var(--text-sm);
+  color        : var(--c-subtle);
+  margin-bottom: 22px;
+  line-height  : 1.55;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 5.1 · AFFILIATIONS
+ * ══════════════════════════════════════════════════════════════ */
+
+/* ── Affiliation logo strip ── */
+.affil-logos {
+  display        : flex;
+  flex-wrap      : wrap;
+  align-items    : center;
+  gap            : 14px 20px;
+  margin         : 4px 0 20px;
+}
+
+.affil-logo-pair {
+  display         : inline-flex;
+  align-items     : center;
+  justify-content : center;
+  flex-shrink     : 0;
+}
+
+.affil-logo {
+  display    : block;
+  width      : var(--logo-w);
+  height     : auto;
+  object-fit : contain;
+}
+
+.affil-logo--dark {
+  display : none;
+}
+
+html.dark .affil-logo--light {
+  display : none;
+}
+
+html.dark .affil-logo--dark {
+  display : block;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 6 · BUTTONS
+ * Visual variants: .btn (outlined) and .btn--primary (filled).
+ * ══════════════════════════════════════════════════════════════ */
+
+.btns {
+  display    : flex;
+  flex-wrap  : wrap;
+  gap        : 8px;
+  margin-bottom: 32px;
+}
+
+.btn {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 6px;
+  font-family    : var(--font-body);
+  font-size      : var(--text-sm);
+  font-weight    : 600;
+  padding        : 7px 15px;
+  border-radius  : var(--r-sm);
+  border         : 1.5px solid var(--c-border);
+  background     : var(--c-surf);
+  color          : var(--c-text);
+  text-decoration: none;
+  cursor         : pointer;
+  transition     : border-color .15s, color .15s, background .15s, box-shadow .15s;
+}
+.btn:hover {
+  border-color : var(--c-accent);
+  color        : var(--c-accent);
+  box-shadow   : 0 0 0 3px color-mix(in srgb, var(--c-accent) 12%, transparent);
+  border-bottom: 1.5px solid var(--c-accent);
+}
+
+/* Filled / primary variant */
+.btn--primary {
+  background   : var(--c-accent);
+  border-color : var(--c-accent);
+  color        : #fff;
+}
+.btn--primary:hover {
+  background   : color-mix(in srgb, var(--c-accent) 80%, #000);
+  border-color : color-mix(in srgb, var(--c-accent) 80%, #000);
+  color        : #fff;
+  box-shadow   : 0 0 0 3px color-mix(in srgb, var(--c-accent) 20%, transparent);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 7 · FIGURE + ALGORITHM ROW
+ * Side-by-side layout for a figure and an algorithm block.
+ * Collapses to a single column on mobile (≤ 720px).
+ * ══════════════════════════════════════════════════════════════ */
+
+.fig-alg-row {
+  display     : flex;
+  align-items : stretch;
+  gap         : 32px;
+  margin      : 26px 0;
+}
+
+.fig-alg-row__fig {
+  flex           : 1 1 0;
+  min-width      : 0;
+  display        : flex;
+  flex-direction : column;
+}
+
+.fig-alg-row .fig-img-switch {
+  margin-top    : auto;
+  margin-bottom : 8px;
+  width         : 100%;
+}
+
+.fig-alg-row .fig-img-switch .fig-img {
+  width     : 100%;
+  max-width : none;
+}
+
+.fig-alg-row .latex-algorithm {
+  flex      : 1 1 0;
+  min-width : 0;
+  max-width : none;
+  margin    : 0;
+}
+
+@media (max-width: 720px) {
+  .fig-alg-row {
+    flex-direction : column;
+  }
+
+  .fig-alg-row .latex-algorithm {
+    margin-top : 20px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 8 · TL;DR BLOCK
+ * Left-accented paragraph at the top of the page.
+ * Change --c-accent to restyle the left bar colour.
+ * ══════════════════════════════════════════════════════════════ */
+
+.tldr {
+  font-size   : var(--text-lg);
+  font-weight : 500;
+  line-height : 1.65;
+  color       : var(--c-head);
+  margin      : 26px 0 30px;
+}
+.tldr strong { color: var(--c-accent); font-weight: 700; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 9 · STAT STRIP
+ * 4-column grid of key numbers. Cells share a 1-px border gap.
+ * Add/remove <div class="stat"> blocks inside .stats to resize.
+ * ══════════════════════════════════════════════════════════════ */
+
+.stats {
+  display              : grid;
+  grid-template-columns: repeat(4, 1fr);
+  border               : 1px solid var(--c-border);
+  border-radius        : var(--r-lg);
+  overflow             : hidden;
+  margin-bottom        : 8px;
+  background           : var(--c-border);   /* gap colour */
+  gap                  : 1px;
+}
+
+.stat {
+  background : var(--c-surf);
+  padding    : 16px 15px 14px;
+}
+.stat__val {
+  font-size      : var(--text-stat);
+  font-weight    : 700;
+  letter-spacing : -.02em;
+  color          : var(--c-head);
+  line-height    : 1;
+  margin-bottom  : 5px;
+}
+.stat__name {
+  font-size     : var(--text-sm);
+  font-weight   : 600;
+  color         : var(--c-head);
+  margin-bottom : 3px;
+}
+.stat__desc {
+  font-size   : 12px;
+  color       : var(--c-muted);
+  line-height : 1.45;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 10 · SECTION HEADINGS
+ * h2: small uppercase label with a coloured left-bar.
+ * h3: smaller sub-label, no bar.
+ * ══════════════════════════════════════════════════════════════ */
+
+h2.section-label {
+  font-size      : var(--text-h2);
+  font-weight    : 800;
+  text-transform : uppercase;
+  letter-spacing : .04em;
+  color          : var(--c-head);
+  margin         : 52px 0 20px;
+  padding-bottom : 12px;
+  border-bottom  : 1px solid var(--c-border);
+}
+
+h3.sub-label {
+  font-size      : 14px;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .07em;
+  color          : var(--c-muted);                /* darker than --c-subtle, so subsections catch the eye */
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  margin         : 30px 0 12px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 11 · PROSE CONTENT
+ * Body paragraphs, inline links.
+ * ══════════════════════════════════════════════════════════════ */
+
+.prose p {
+  margin-bottom : 14px;
+  color         : var(--c-text);
+  text-align    : justify;
+  hyphens       : auto;
+}
+.prose p:last-child { margin-bottom: 0; }
+
+/* Theory page: left-aligned text. Justified text stretches word gaps whenever an
+   unbreakable inline formula (MathJax) moves to the next line, which the theory page's
+   inline maths does often. text-wrap: pretty evens out the ragged right edge. */
+body.theory p,
+body.theory figcaption { text-align: left; text-wrap: pretty; }
+
+/* Standalone paragraphs outside .prose */
+p {
+  margin-bottom : 14px;
+  text-align    : justify;
+  hyphens       : auto;
+}
+p:last-child { margin-bottom: 0; }
+
+/* Numbered / bulleted list in body text, spaced like paragraphs */
+.text-list    { margin: 0 0 14px; padding-left: 1.6em; }
+.text-list li { margin-bottom: 6px; padding-left: 4px; }
+.text-list li::marker { color: var(--c-muted); font-weight: 600; }
+body.theory .text-list li { text-align: left; text-wrap: pretty; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 12 · EQUATION BLOCK
+ * Centred, surfaced container for display-math equations.
+ * Wrap your $$ ... $$ in <div class="eq-block">.
+ * ══════════════════════════════════════════════════════════════ */
+
+.eq-block {
+  /* background    : var(--c-surf); */
+  /* border        : 1px solid var(--c-border);
+  border-radius : var(--r-md); */
+  padding       : 18px 22px;
+  margin        : 18px 0;
+  text-align    : center;
+  overflow-x    : auto;
+}
+
+/* Small screens: wide display equations scroll inside their own box,
+   so they never make the page wider than the screen */
+@media (max-width: 1000px) {
+  mjx-container[display="true"] {
+    max-width  : 100%;
+    overflow-x : auto;
+    overflow-y : hidden;
+  }
+  /* Numbered equations: MathJax sets an inline min-width, which would beat max-width */
+  mjx-container[display="true"][width="full"] { min-width: 0 !important; }
+}
+
+
+/* Equation side-note — use \eqnote{text} inside MathJax (macro in
+   index.html). Purple matches the paper's \coloremph (#7B1FA2);
+   a lighter purple keeps it readable in dark mode. */
+.eq-note { color: #7B1FA2; }
+html.dark .eq-note { color: #CE93D8; }
+/* Coloured emphasis for key terms — the paper's \coloremph, same purple */
+.c-emph { color: #7B1FA2; }
+html.dark .c-emph { color: #CE93D8; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 13 · THEOREM / HIGHLIGHT BLOCK
+ * Two variants:
+ *   .thm-block   — tinted background, for theorems/lemmas
+ *   .hl-block    — left-bar accent, for callouts / key points
+ * ══════════════════════════════════════════════════════════════ */
+
+/* Theorem block — neutral gray, no accent tint */
+/* Lower-case roman numerals in a label, e.g. "(ii) Convexity", despite the uppercase label style */
+.thm-block__num { text-transform: none; }
+
+.thm-block {
+  background    : var(--c-surf);
+  border        : 1px solid var(--c-border);
+  border-radius : var(--r-md);
+  padding       : 16px 20px;
+  margin        : 18px 0;
+  font-size     : var(--text-base);
+  line-height   : 1.68;
+}
+.thm-block__label {
+  font-size      : var(--text-sm);
+  font-weight    : 900;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--c-muted);
+  margin-bottom  : 7px;
+}
+/* Summary variant: a faint tint of the site accent, with a left accent bar, like a highlight box */
+.thm-block--summary                    { background: color-mix(in oklab, var(--c-accent) 6%, var(--c-bg));
+                                         border-color: color-mix(in oklab, var(--c-accent) 20%, var(--c-bg));
+                                         border-left: 3px solid var(--c-accent); }
+.thm-block--summary .thm-block__label  { color: var(--c-accent); }
+html.dark .thm-block--summary          { background: color-mix(in oklab, var(--c-accent) 10%, var(--c-bg)); }
+.thm-block .text-list:last-child       { margin-bottom: 0; }
+/* Theory page: theorem-box titles quieter than the h3.sub-label subsection titles */
+body.theory .thm-block__label { font-size: 12px; font-weight: 700; }
+
+/* Highlight / callout block */
+.hl-block {
+  border-left   : 3px solid var(--c-accent);
+  border-radius : 0 var(--r-md) var(--r-md) 0;
+  background    : var(--c-surf2);
+  padding       : 14px 18px;
+  margin        : 18px 0;
+  font-size     : var(--text-base);
+  line-height   : 1.68;
+  color         : var(--c-text);
+}
+/* Blue variant, for the key observation: easy to spot, still soft */
+.hl-block--blue { --hl-blue: #2f6db3; border-left-color: var(--hl-blue);
+                  background: color-mix(in oklab, var(--hl-blue) 8%, var(--c-bg)); }
+html.dark .hl-block--blue { --hl-blue: #6fa3dc; background: color-mix(in oklab, var(--hl-blue) 12%, var(--c-bg)); }
+
+
+
+/* ══════════════════════════════════════════════════════════════
+ * LATEX-STYLE ALGORITHM BLOCK
+ * ══════════════════════════════════════════════════════════════ */
+
+.latex-algorithm {
+  margin      : 28px auto;
+  max-width   : 760px;
+  color       : var(--c-text);
+  font-size   : var(--text-sm);
+  line-height : 1.45;
+}
+
+.latex-algorithm__caption {
+  text-align    : center;
+  color         : var(--c-head);
+  font-size     : var(--text-sm);
+  margin-bottom : 6px;
+  hyphens       : none;
+}
+
+.latex-algorithm__label {
+  font-weight : 700;
+}
+
+.latex-algorithm__title {
+  font-weight : 400;
+}
+
+.latex-algorithmic {
+  counter-reset  : alg-line;
+  list-style     : none;
+  margin         : 0;
+  padding        : 6px 0;
+  border-top     : 1.4px solid var(--c-head);
+  border-bottom  : 1.4px solid var(--c-head);
+  font-family    : var(--font-body);
+  background     : transparent;
+}
+
+.latex-algorithmic li {
+  counter-increment : alg-line;
+  display           : flex;
+  align-items       : baseline;
+  padding           : 3px 0;
+  color             : var(--c-text);
+  hyphens           : none;
+}
+
+.latex-algorithmic li::before {
+  content      : counter(alg-line) ":";
+  flex-shrink  : 0;
+  width        : 30px;
+  text-align   : right;
+  padding-right: 10px;
+  color        : var(--c-muted);
+  font-size    : var(--text-sm);
+  line-height  : inherit;
+}
+
+.latex-algorithmic .alg-indent {
+  padding-left : 20px;
+}
+
+.latex-algorithmic .alg-indent::before {
+  margin-left : -20px;
+}
+
+.alg-highlight {
+  background : color-mix(in srgb, var(--c-accent) 8%, transparent);
+  box-shadow : inset 3px 0 0 var(--c-accent);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+.alg-keyword {
+  font-weight : 700;
+  color       : var(--c-head);
+}
+
+.alg-ref {
+  color       : var(--c-muted);
+  font-size   : 12px;
+  margin-left : 4px;
+}
+
+/* Paper-style variant (as \begin{algorithm}): centred, rule above the caption, thin rule
+   under it, rule under the last line; caption left-aligned */
+.latex-algorithm--boxed { max-width: 560px; margin: 20px auto; }
+.latex-algorithm--boxed .latex-algorithm__caption {
+  text-align: left; margin: 0; padding: 4px 0;
+  border-top: 1.4px solid var(--c-head); border-bottom: 0.8px solid var(--c-head);
+}
+.latex-algorithm--boxed .latex-algorithmic { border-top: none; }
+body.theory .latex-algorithm--boxed li { text-align: left; }
+.latex-algorithm--boxed .alg-indent { padding-left: 0; }                      /* indent the content, not the line number */
+.latex-algorithm--boxed .alg-indent::before { margin-left: 0; }
+.latex-algorithm--boxed .alg-indent > span { padding-left: 20px; }
+
+/* Keep MathJax inline math visually close to LaTeX algorithm output */
+.latex-algorithm mjx-container {
+  line-height : 0;
+}
+
+/* Mobile: keep the algorithm readable without overflowing badly */
+@media (max-width: 540px) {
+  .latex-algorithm {
+    max-width : 100%;
+    font-size : 12px;
+  }
+
+  .latex-algorithmic {
+    overflow-x : auto;
+  }
+
+  .latex-algorithmic li {
+    min-width : 620px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 14 · FIGURE WRAPPERS & PLACEHOLDERS
+ * ══════════════════════════════════════════════════════════════ */
+
+/* Placeholder — dashed box used before real figures are ready */
+.fig-ph {
+  width         : 100%;
+  background    : var(--c-surf);
+  border        : 1.5px dashed var(--c-border);
+  border-radius : var(--r-lg);
+  display       : flex;
+  align-items   : center;
+  justify-content: center;
+  color         : var(--c-subtle);
+  font-size     : var(--text-sm);
+  font-style    : italic;
+  padding       : 52px 20px;
+  margin        : 18px 0 8px;
+  text-align    : center;
+}
+/* Taller placeholder variant — add class="fig-ph fig-ph--tall" */
+.fig-ph--tall { padding: 72px 20px; }
+
+/* Real figure image — add class="fig-img" to <img> elements */
+.fig-img {
+  width         : 100%;
+  /* border-radius : var(--r-lg); */
+  /* border        : 1px solid var(--c-border); */
+  margin        : 18px 0 8px;
+}
+
+.fig-img-pair {
+  margin : 18px 0 26px;
+}
+
+.fig-img-switch {
+  display         : flex;
+  justify-content : center;
+  align-items     : center;
+  margin          : 18px 0 8px;
+}
+
+.fig-img-switch .fig-img {
+  width     : 100%;
+  max-width : 960px;
+  margin    : 0 auto;
+}
+
+/* Default: show dark-text figure on light page */
+.fig-img-switch .fig-img--light {
+  display : block;
+}
+
+/* Default: hide light-text figure */
+.fig-img-switch .fig-img--dark {
+  display : none;
+}
+
+/* Dark mode: hide dark-text figure */
+html.dark .fig-img-switch .fig-img--light {
+  display : none;
+}
+
+/* Dark mode: show light-text figure */
+html.dark .fig-img-switch .fig-img--dark {
+  display : block;
+}
+
+.fig-caption-center {
+  text-align    : center;
+  hyphens       : none;
+  margin-bottom : 26px;
+}
+
+/* Two figures side by side — each child takes equal width.
+   Collapses to a single column on mobile (≤ 720px). */
+.fig-pair {
+  display     : flex;
+  align-items : center;
+  gap         : 28px;
+  margin      : 26px 0;
+}
+
+.fig-pair > figure {
+  flex      : 1 1 0;
+  min-width : 0;
+  margin    : 0;
+}
+
+.fig-pair .fig-img-switch {
+  width  : 60%;
+  margin : 0 auto;
+}
+
+@media (max-width: 720px) {
+  .fig-pair {
+    flex-direction : column;
+  }
+}
+
+
+figcaption {
+  font-size     : var(--text-sm);
+  font-style    : italic;
+  color         : var(--c-muted);
+  line-height   : 1.55;
+  margin-bottom : 26px;
+}
+figcaption strong { color: var(--c-text); font-style: normal; }
+
+
+
+
+/* ── Booktabs-style results table ── */
+.booktabs-table {
+  margin : 22px 0 30px;
+}
+
+.booktabs-table figcaption {
+  font-size     : var(--text-sm);
+  font-style    : italic;
+  color         : var(--c-muted);
+  line-height   : 1.55;
+  margin-bottom : 12px;
+  text-align    : left;
+  hyphens       : none;
+}
+
+.table-scroll {
+  width      : 100%;
+  overflow-x : auto;
+}
+
+.perf-table {
+  width           : 100%;
+  min-width       : 920px;
+  border-collapse : separate;
+  border-spacing  : 0;
+  font-size       : 12px;
+  line-height     : 1.42;
+  color           : var(--c-text);
+  background      : transparent;
+}
+
+.perf-table th,
+.perf-table td {
+  padding        : 8px 10px;
+  text-align     : center;
+  vertical-align : middle;
+  white-space    : nowrap;
+  border         : none;
+}
+
+.perf-table thead tr:first-child th {
+  border-top : 1.6px solid var(--c-head);
+}
+
+.perf-table thead tr:last-child th {
+  border-bottom : 1.1px solid var(--c-head);
+}
+
+.perf-table tbody tr:last-child th,
+.perf-table tbody tr:last-child td {
+  border-bottom : 1.6px solid var(--c-head);
+}
+
+.perf-table tbody th {
+  text-align  : left;
+  font-weight : 700;
+  color       : var(--c-head);
+}
+
+.perf-table thead th {
+  font-weight : 700;
+  color       : var(--c-head);
+}
+
+.perf-table .task-head {
+  text-align      : left;
+  vertical-align  : bottom;
+  border-bottom   : 1.1px solid var(--c-head);
+}
+
+.perf-table .group-head {
+  position       : relative;
+  padding-bottom : 9px;
+}
+
+.perf-table .group-head::after {
+  content    : '';
+  position   : absolute;
+  left       : 8px;
+  right      : 8px;
+  bottom     : 2px;
+  height     : 1px;
+  background : var(--c-head);
+}
+
+.perf-table strong {
+  font-weight : 800;
+  color       : var(--c-head);
+}
+
+.table-line {
+  display     : block;
+  line-height : 1.45;
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 15 · CODE / CITATION BLOCK
+ * ══════════════════════════════════════════════════════════════ */
+
+pre, code {
+  font-family : var(--font-mono);
+}
+
+pre {
+  background    : var(--c-surf);
+  border        : 1px solid var(--c-border);
+  border-radius : var(--r-lg);
+  padding       : 18px 20px;
+  font-size     : 12px;
+  line-height   : 1.65;
+  overflow-x    : auto;
+  white-space   : pre;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 15.4 · TABLE OF CONTENTS (theory page)
+ * Filled by the script in theory.html from h2.section-label and
+ * h3.sub-label headings, in a single column.
+ * ══════════════════════════════════════════════════════════════ */
+
+.toc {
+  border-top    : 1px solid var(--c-border);
+  border-bottom : 1px solid var(--c-border);
+  padding       : 18px 0 16px;
+  margin        : 30px 0 8px;
+}
+.toc__title {
+  font-size      : var(--text-sm);
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--c-subtle);
+  margin-bottom  : 10px;
+}
+.toc ol {
+  list-style : none;
+  margin     : 0;
+  padding    : 0;
+}
+.toc > ol > li {
+  margin-bottom : 8px;
+}
+.toc a {
+  border-bottom : none;
+  color         : var(--c-head);
+  font-size     : var(--text-sm);
+  font-weight   : 600;
+  line-height   : 1.45;
+}
+.toc ol ol {
+  margin      : 3px 0 0;
+  padding-left: 14px;
+  border-left : 1px solid var(--c-border);
+}
+.toc ol ol li { margin-bottom: 2px; }
+.toc ol ol a {
+  color       : var(--c-muted);
+  font-weight : 400;
+}
+.toc a:hover { color: var(--c-accent); }
+
+/* Keep headings clear of the fixed sticky nav when jumped to */
+h2.section-label, h3.sub-label { scroll-margin-top: 72px; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 15.5 · REFERENCES (theory page)
+ * .ref-list is filled from the BibTeX block in theory.html;
+ * .cite marks in-text citations, e.g. <span class="cite" data-cite="key1,key2"></span>
+ * ══════════════════════════════════════════════════════════════ */
+
+.ref-list {
+  font-size    : var(--text-sm);
+  line-height  : 1.55;
+  color        : var(--c-muted);
+  padding-left : 2.2em;
+}
+.ref-list li {
+  margin-bottom : 8px;
+  padding-left  : 4px;
+  text-align    : left;
+  scroll-margin-top: 80px;
+}
+.ref-list li:target { color: var(--c-head); }
+.ref-list em { color: var(--c-text); }
+
+.cite a { border-bottom: none; }
+
+/* Footnotes (theory page): \footnote{…} → superscript number, list under Footnotes, hover popup */
+.fn-ref          { font-size: .72em; line-height: 0; margin-left: 1px; }
+.fn-ref a        { color: var(--fig-grad); border-bottom: none; font-weight: 600; padding: 0 1px; scroll-margin-top: 120px; }
+.fn-back         { border-bottom: none; }
+mjx-container a[href^="#fn-"] { color: var(--fig-grad); }        /* footnote number inside maths */
+.fn-pop {
+  position      : fixed;
+  z-index       : 1100;
+  width         : max-content;                    /* fit a wide equation … */
+  max-width     : min(560px, calc(100vw - 24px)); /* … up to this, then wrap text */
+  overflow-x    : auto;                           /* an equation wider still scrolls, never spills */
+  padding       : 10px 14px;
+  background    : var(--c-bg);
+  border        : 1px solid var(--c-border);
+  border-radius : var(--r-md);
+  box-shadow    : 0 4px 18px rgba(0,0,0,0.10);
+  font-size     : var(--text-sm);
+  line-height   : 1.55;
+  color         : var(--c-text);
+  text-align    : left;
+}
+.fn-pop[hidden]  { display: none; }
+html.dark .fn-pop { box-shadow: 0 4px 18px rgba(0,0,0,0.45); }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 15.6 · INTERACTIVE FIGURES (theory page)
+ * Distill-style: controls above, figure on a light panel, plain
+ * (non-italic) caption whose coloured .hl words drive the figure.
+ * Generic parts (.ifig, .chip, .hl) are reusable; .ts-* belongs to
+ * the two-state figure (dynamic/figures/two-state.js).
+ * ══════════════════════════════════════════════════════════════ */
+
+.ifig { margin: 22px 0 8px; }
+
+.ifig__controls {
+  display     : flex;
+  flex-wrap   : wrap;
+  align-items : center;
+  gap         : 6px 8px;
+  margin-bottom: 10px;
+}
+.ifig__label {
+  font-size      : var(--text-xs);
+  font-weight    : 600;
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--c-subtle);
+  margin-right   : 2px;
+}
+.ifig__sep { width: 14px; }
+
+.chip {
+  display       : inline-flex;
+  align-items   : center;
+  gap           : 6px;
+  font-family   : var(--font-body);
+  font-size     : 13px;
+  color         : var(--c-muted);
+  background    : var(--c-bg);
+  border        : 1px solid var(--c-border);
+  border-radius : 999px;
+  padding       : 3px 11px;
+  cursor        : pointer;
+  transition    : color .15s, border-color .15s, box-shadow .15s;
+}
+.chip:hover { color: var(--c-text); border-color: var(--c-subtle); }
+.chip.is-active {
+  color        : var(--c-head);
+  border-color : var(--chip-c, var(--c-accent));
+  box-shadow   : inset 0 0 0 1px var(--chip-c, var(--c-accent));
+}
+.chip__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--chip-c, var(--c-accent));
+}
+
+.ifig__canvas {
+  /* TEMP (bg trial) — no panel: page background, no border. To revert:
+     background : var(--c-surf);
+     border     : 1px solid var(--c-border); */
+  background    : var(--c-bg);
+  border        : none;
+  border-radius : var(--r-md);
+  padding       : 10px 12px 14px;
+}
+.ifig__canvas svg {
+  display   : block;
+  width     : 100%;
+  max-width : 440px;
+  height    : auto;
+  margin    : 0 auto;
+  font-family: var(--font-body);
+}
+
+.ifig figcaption { font-style: normal; margin-top: 10px; }
+.ifig figcaption.fig-caption-center { font-style: italic; }   /* a page's own centred caption keeps the site style */
+.ifig figcaption .hl {
+  font-weight   : 600;
+  color         : var(--hl-c, var(--c-accent));
+  border-bottom : 1px dotted currentColor;
+  cursor        : pointer;
+}
+
+/* Dimmed (not highlighted) element */
+.ifig .is-dim { opacity: .2; }
+
+/* ── Two-state problem ───────────────────────────────────────── */
+.ts-fig {
+  --ts-feature : var(--fig-natF);
+  --ts-reward  : var(--fig-grad);
+  --ts-policy  : var(--fig-phi-rho);
+  --ts-expert  : var(--fig-phi-hat);   /* pink: distinct from the blue of our update */
+}
+.ts-fig [data-aspect="feature"] { --chip-c: var(--ts-feature); --hl-c: var(--ts-feature); }
+.ts-fig [data-aspect="reward"]  { --chip-c: var(--ts-reward);  --hl-c: var(--ts-reward); }
+.ts-fig [data-aspect="policy"]  { --chip-c: var(--ts-policy);  --hl-c: var(--ts-policy); }
+
+.ts-edge, .ts-node, .ts-table tr { transition: opacity .2s; }
+.ts-edge path {
+  fill         : none;
+  stroke       : var(--c-subtle);
+  stroke-width : 1.6;
+  transition   : stroke .2s, stroke-width .2s;
+}
+.ts-edge text { font-size: 13px; fill: var(--c-muted); }
+.ts-edge.is-reward path { stroke: var(--ts-reward); stroke-width: 2.4; }
+.ts-edge.is-reward .ts-r { fill: var(--ts-reward); font-weight: 700; }
+.ts-edge.is-policy path { stroke: var(--ts-policy); stroke-width: 3.2; }
+.ts-edge.is-policy .ts-a { fill: var(--c-head); font-weight: 700; }
+.ts-edge.is-expert path { stroke: var(--ts-expert); stroke-width: 3.2; }
+.ts-edge.is-expert .ts-a { fill: var(--c-head); font-weight: 700; }
+.ts-edge.is-feature path { stroke: var(--ts-feature); stroke-width: 2.4; }
+
+.ts-arrow--base   path { fill: var(--c-subtle); }
+.ts-arrow--reward path { fill: var(--ts-reward); }
+.ts-arrow--policy  path { fill: var(--ts-policy); }
+.ts-arrow--feature path { fill: var(--ts-feature); }
+.ts-arrow--expert  path { fill: var(--ts-expert); }
+
+.ts-node { cursor: pointer; outline: none; }
+.ts-node circle {
+  fill         : var(--c-bg);
+  stroke       : var(--c-text);
+  stroke-width : 1.6;
+  transition   : stroke .2s, stroke-width .2s, fill .2s;
+}
+.ts-node:hover circle,
+.ts-node:focus-visible circle { stroke-width: 2.4; }
+.ts-node__label {
+  font-size         : 16px;
+  font-weight       : 600;
+  fill              : var(--c-head);
+  text-anchor       : middle;
+  dominant-baseline : central;
+  pointer-events    : none;
+}
+/* ψ(s,a) label: replaces the "a = …, r = …" label while Features is on */
+.ts-edge .ts-lbl,
+.ts-edge .ts-feat { transition: opacity .2s; }
+.ts-edge .ts-feat { fill: var(--ts-feature); font-weight: 600; opacity: 0; }
+.ts-edge.is-feature .ts-feat { opacity: 1; }
+.ts-edge.is-feature .ts-lbl  { opacity: 0; }
+
+.ts-table {
+  width           : auto;         /* natural width: ψ(s,a) cells stay on one line */
+  margin          : 10px auto 0;
+  border-collapse : collapse;
+  font-size       : 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ts-table th,
+.ts-table td {
+  padding       : 5px 9px;
+  white-space   : nowrap;
+  text-align    : center;
+  border-bottom : 1px solid var(--c-border);
+  transition    : color .2s;
+}
+.ts-table th { font-weight: 600; color: var(--c-muted); }
+.ts-table tbody tr { cursor: pointer; }
+.ts-table tbody tr:last-child td { border-bottom: none; }
+.ts-table .is-on { color: var(--hl-c); font-weight: 700; }
+/* Phones: the ψ(s,a) cells don't wrap, so tighten the table; the panel scrolls if still too wide */
+.ifig__canvas { overflow-x: auto; }
+@media (max-width: 640px) {
+  .ts-table { font-size: 11.5px; }
+  .ts-table th, .ts-table td { padding: 4px 5px; }
+}
+
+/* ── Θ-space figure (dynamic/figures/theta-space.js) ────────── */
+/* Θ-space | Φ-space | MDP in one row; one column on narrow screens */
+.tp-body {
+  display               : grid;
+  grid-template-columns : 1fr 1fr 1fr;
+  align-items           : start;         /* tops aligned so the three titles line up */
+  gap                   : 8px 16px;
+}
+@media (max-width: 760px) {
+  .tp-body { grid-template-columns: 1fr; justify-items: center; }
+}
+.tp-left { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 300px; position: relative; }
+/* 𝒢(θ) label in the Θ box's bottom-left corner (data-g-label); % of the 300 × 318 plot
+   viewBox. Bottom-left keeps it clear of the starting θ⁽ⁱ⁾ on index.html. */
+.tp-glabel {
+  position       : absolute;
+  left           : calc(40 / 300 * 100%);
+  top            : calc(250 / 318 * 100%);
+  font-size      : 14px;
+  line-height    : 1;
+  padding        : 2px 3px;
+  background     : var(--c-bg);
+  color          : var(--c-text);
+  pointer-events : none;
+}
+.ifig__canvas .tp-plot { max-width: 300px; margin: 0; cursor: crosshair; touch-action: none; }
+.ifig__canvas .tp-mdp  { max-width: 300px; margin: 0; }
+
+/* Third panel: a menu styled as the panel title picks the view. Sizes are in container
+   units of the 300-unit plot viewBox, so the menu matches the Θ-/Φ-space titles at any width. */
+.tp-panel { container-type: inline-size; }
+.tp-pick {
+  position  : absolute;
+  top       : calc(-2 / 300 * 100cqw);
+  left      : 50%;
+  transform : translateX(-50%);
+  display   : inline-flex;
+  align-items: center;
+}
+.tp-pick select {
+  appearance    : none;
+  -webkit-appearance: none;
+  font-family   : var(--font-mono);
+  font-size     : calc(22 / 300 * 100cqw);
+  line-height   : 1.2;
+  color         : var(--c-text);
+  background    : transparent;
+  border        : none;                          /* the ▾ caret marks it as a menu */
+  padding       : 0 1.1em 0 0;
+  text-align    : center;
+  text-align-last: center;
+  cursor        : pointer;
+}
+.tp-pick select:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.tp-pick select option { font-size: 15px; color: var(--c-text); background: var(--c-bg); }
+.tp-pick::after {                               /* caret */
+  content        : '▾';
+  position       : absolute;
+  right          : 0;
+  font-size      : calc(15 / 300 * 100cqw);
+  color          : var(--c-muted);
+  pointer-events : none;
+}
+.tp-panel .ts-edge text { font-size: 16px; }   /* MDP viewBox is 400 wide in a 300-unit column */
+/* `hidden` must win over the display rules above (views, Reset chip) */
+.tp-panel [hidden], .chip[hidden] { display: none !important; }
+.tp-plot--theta { cursor: crosshair; }
+.ifig__canvas .tp-plot--phi,
+.ifig__canvas .tp-plot--tgeo,
+.ifig__canvas .tp-plot--pgeo { cursor: default; }
+
+/* Geometry row: contours of the integral Hessian (Θ) and integral FIM (Φ), paper-code colours */
+.tp-ring            { fill: none; stroke-width: .9; stroke-linecap: round; }
+.tp-ring.is-through { stroke-width: 2; }                 /* the contour through θ⁽ⁱ⁾ / φ_ρ⁽ⁱ⁾ */
+.tp-rings--hess .tp-ring { stroke: var(--fig-hess); }   /* H̄: Hessian yellow        */
+.tp-rings--fim  .tp-ring { stroke: var(--fig-natH); }   /* H: integral-FIM blue     */
+.hl-hess { color: var(--fig-hess); }
+
+/* ── Occupancy-measure figure (dynamic/figures/occupancy.js) ─────
+   Monochrome sequential scale built from the site accent (so it follows the colour preset
+   and the theme): lo = accent faintly tinted into the background, hi = the accent.
+   Cells are coloured by color-mix(lo, hi, ρ). */
+.oc-fig { --oc-hi: var(--c-accent); --oc-lo: color-mix(in oklab, var(--c-accent) 7%, var(--c-bg)); }
+html.dark .oc-fig { --oc-lo: color-mix(in oklab, var(--c-accent) 12%, var(--c-bg)); }
+
+/* HTML grid (built by occupancy.js): columns 1 sliders · 2 rollouts · 3 axis label s ·
+   4 row ticks · 5–6 cells · 7 colour bar · 8 its ticks; rows 1 titles · 2–3 states ·
+   4 column ticks · 5 axis label a */
+.oc-body {
+  display               : grid;
+  grid-template-columns : minmax(0, 200px) 360px 30px 20px 103px 103px 26px auto;
+  grid-template-rows    : auto 103px 103px auto auto;   /* rows = rollouts height: 360 × 200/350 + gap */
+  gap                   : 3px;                 /* 3px surface gap between cells */
+  justify-content       : center;
+  align-items           : center;
+  max-width             : 100%;
+}
+.oc-sym { font-weight: 700; font-style: normal; }   /* bold upright s, a (paper notation) */
+
+/* Panel titles above the rollouts and the grid */
+/* Same style as the Θ-space / Φ-space panel titles (.tp-title: DM Mono, ~20.5px on screen) */
+.oc-title { font-family: var(--font-mono); font-size: 20.5px; color: var(--c-text); text-align: center; padding-bottom: 8px; }
+.oc-title sub { font-size: .7em; }
+
+/* ── Policy pad (dynamic/figures/policy-pad.js) — one point sets a two-state policy:
+   x = π(a=1|s=0), y = π(a=1|s=1). Title uses .oc-title; kept small (≈ 200px). ── */
+.pp        { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 200px; justify-self: center; margin: 0 auto; }
+.pp-svg    { width: 100%; height: auto; display: block; touch-action: none; cursor: crosshair;
+             user-select: none; -webkit-user-select: none; outline: none; }
+.pp-svg:focus-visible .pp-frame { stroke: var(--c-accent); stroke-width: 2; }
+.pp-frame  { fill: var(--c-bg); stroke: var(--c-head); stroke-width: 1.8; }   /* interactive: darker frame, like Θ-space */
+.pp-dot    { fill: var(--fig-theta); stroke: var(--c-bg); stroke-width: 1.5; }
+.pp-axis   { font-size: 15px; fill: var(--c-text); }
+.pp-end    { font-size: 13px; fill: var(--c-text); }
+.pp-prob   { font-size: 12px; fill: var(--c-muted); font-variant-numeric: tabular-nums; }
+.oc-pad    { align-self: center; margin-right: 18px; }
+.oc-pad .pp-title, .pp .pp-title { width: 100%; }
+/* The square's centre is at 121/200 of the pad width, so pad the title's left by 21%
+   to centre it over the square rather than the whole pad */
+.pp-title  { padding-left: 21%; box-sizing: border-box; text-align: center; }
+
+/* Concavity figure: pads in a column left of the plots */
+.cv-layout   { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 28px; }
+.cv-controls { display: flex; flex-direction: column; gap: 10px; width: 170px; }
+
+/* ── Occupancy-matching figure (dynamic/figures/occupancy-match.js) ───
+   Columns 1 sliders · 2 row labels · 3 bars · 4 values; rows 1 title · 2–5 one per (s, a),
+   the slider of state s spanning its two rows · 6 ticks · 7 legend · 8 KL. Reuses the
+   occupancy figure's sliders, titles and monochrome ramp (.oc-fig). */
+.om-body {
+  display               : grid;
+  grid-template-columns : minmax(0, 200px) auto minmax(160px, 340px) auto;
+  grid-template-rows    : auto repeat(4, 42px) auto auto auto;
+  gap                   : 4px 12px;
+  justify-content       : center;
+  align-items           : center;
+}
+.om-label { font-size: 15px; color: var(--c-text); white-space: nowrap; text-align: right; }
+.om-track { position: relative; height: 30px; }
+.om-bar   { position: absolute; left: 0; border-radius: 0 4px 4px 0; transition: width .12s; }
+.om-bar--expert { top: 0; height: 100%; background: color-mix(in oklab, var(--oc-hi) 22%, var(--oc-lo)); }
+.om-bar--agent  { top: 25%; height: 50%; background: var(--oc-hi); }
+.om-val   { display: flex; flex-direction: column; line-height: 1.2; font-variant-numeric: tabular-nums; min-width: 3em; }
+.om-v     { font-size: 15px; font-weight: 600; color: var(--c-head); }
+.om-ve    { font-size: 12px; color: var(--c-muted); }
+.om-ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--c-muted); margin-top: -2px; }
+.om-legend { display: flex; gap: 22px; justify-content: center; font-size: 14px; color: var(--c-text); padding-top: 6px; }
+.om-legend > span { display: inline-flex; align-items: center; gap: 7px; }
+.om-sw    { display: inline-block; width: 18px; height: 12px; border-radius: 2px; }
+.om-sw--expert { background: color-mix(in oklab, var(--oc-hi) 22%, var(--oc-lo)); }
+.om-sw--agent  { background: var(--oc-hi); }
+.om-kl    { text-align: center; font-size: 17px; color: var(--c-text); padding-top: 8px; }
+.om-kl__v { font-family: var(--font-mono); font-weight: 500; color: var(--c-head); }
+
+/* ── Concavity figure (dynamic/figures/concavity.js): two 300 × 318 panels, titles/axes as .tp-* ── */
+.cv-body { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); gap: 8px 40px; justify-content: center; }
+.cv-panel { position: relative; }
+/* Panel titles: .oc-title (DM Mono, like the occupancy figure), centred over the plot box */
+/* ── Curvature seen by gradient descent and by the functional update (dynamic/figures/curvature-compare.js) ── */
+.cc-top       { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 8px 28px; }
+@media (max-width: 640px) { .cc-top { grid-template-columns: minmax(0, 300px); } }
+.cc-3d-title  { width: 100%; padding-bottom: 4px; }
+.ifig__canvas .cc-3d { max-width: 300px; margin: 0; }
+.cc-run--gd   { --cc-c: var(--fig-grad); }
+.cc-run--fu   { --cc-c: var(--fig-natH); }
+.cc-line      { fill: none; stroke: var(--cc-c); stroke-width: 1.6; stroke-linejoin: round; }
+.cc-run circle { fill: var(--cc-c); }
+.cc-start .tp-theta { fill: var(--c-bg); stroke: var(--fig-theta); stroke-width: 1.8; }
+.cc-grid path { fill: none; stroke: var(--c-subtle); stroke-width: .7; opacity: .7; }
+.cc-floor     { fill: none; stroke: var(--c-border); stroke-width: 1; }
+.cc-level     { fill: none; stroke: var(--fig-grad); stroke-width: 2.2; }
+.cc-shadow    { fill: none; stroke: var(--fig-grad); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .7; }
+.cc-axis      { stroke: var(--c-text); stroke-width: 1.4; }
+.cc-axlab     { font-size: 12px; fill: var(--c-text); paint-order: stroke; stroke: var(--c-bg); stroke-width: 3px; }
+.cc-cells     { display: grid; grid-template-columns: max-content repeat(3, minmax(0, 150px)); gap: 6px 14px;
+                justify-content: center; align-items: center; margin-top: 14px; font-size: var(--text-sm); }
+.cc-head      { text-align: center; color: var(--c-muted); }
+.cc-rowlab    { text-align: right; line-height: 1.5; }
+.cc-cell      { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cc-cell-plot { width: 100%; max-width: 120px; }
+.cc-cell-svg  { display: block; width: 100%; height: auto; }
+.cc-cross     { stroke: var(--c-border); stroke-width: .8; }
+.cc-ell       { fill: none; stroke-width: 2.2; }
+.cc-ell--gd   { stroke: var(--fig-grad); }
+.cc-ell--fu   { stroke: var(--fig-natH); }
+.cc-val       { font-size: 12px; color: var(--c-muted); font-variant-numeric: tabular-nums; text-align: center; line-height: 1.35; white-space: nowrap; }
+
+/* ── One mirror descent step in the primal and the dual space (dynamic/figures/md-primal-dual.js) ── */
+.mdp-map        { text-align: center; font-size: var(--text-sm); color: var(--c-muted); margin-bottom: 4px; }
+.mdp-wrap       { position: relative; max-width: 780px; margin: 0 auto; }
+.ifig__canvas .mdp-plot { max-width: 780px; user-select: none; -webkit-user-select: none; touch-action: none; }
+.mdp-lab        { position: absolute; left: calc(398 / 780 * 100%); transform: translate(-50%, -50%);
+                  font-size: 13px; color: var(--c-text); white-space: nowrap; pointer-events: none; }
+.mdp-lab--up    { top: calc(136 / 350 * 100%); }      /* above the → arrow (y = 150.4) */
+.mdp-lab--down  { top: calc(218 / 350 * 100%); }      /* below the ← arrow (y = 201.6) */
+.mdp-glab       { position: absolute; top: calc(301 / 350 * 100%); transform: translateY(-100%);   /* bottom edge 3 units above the box bottom (y = 304), whatever the label's height */
+                  font-size: 14px; line-height: 1; padding: 2px 3px;
+                  background: var(--c-bg); color: var(--c-text); pointer-events: none; }   /* as .tp-glabel, bottom-left of each box */
+.mdp-glab--primal { left: calc(40 / 780 * 100%); }
+.mdp-glab--dual   { left: calc(496 / 780 * 100%); }
+.mdp-plot .tp-title { paint-order: stroke; stroke: var(--c-bg); stroke-width: 8px; stroke-linejoin: round; }
+.mdp-plot .mdp-frame--primal { stroke: var(--c-head); stroke-width: 2.2; transition: stroke-width .15s; }   /* the box you drag in; same as .tp-plot--theta .tp-frame (must beat .tp-frame, defined later) */
+.mdp-plot.is-primal-hover .mdp-frame--primal { stroke-width: 3; }                                    /* as .tp-plot--theta:hover */
+.mdp-pt circle  { stroke: var(--c-bg); stroke-width: 1.4; }
+.mdp-pt--start circle { fill: var(--c-bg); stroke: var(--fig-theta); stroke-width: 1.8; }
+.mdp-pt--next circle  { fill: var(--fig-natH); }
+.mdp-pt--star circle  { fill: var(--fig-theta); }
+.mdp-map-arrow  { stroke: var(--c-text); stroke-width: 1.6; }
+.mdp-arrowhead  { fill: var(--c-text); }
+.mdp-link       { fill: none; stroke: var(--fig-connector); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.mdp-linkhead   { fill: var(--fig-connector); }
+.mdp-step       { stroke: var(--fig-natH); stroke-width: 2.2; }
+.mdp-stephead   { fill: var(--fig-natH); }
+
+/* ── Bregman divergence in 1-D (dynamic/figures/bregman.js) ── */
+#fig-bregman    { --bg-red: #d0213b; }
+html.dark #fig-bregman { --bg-red: #ff6b7f; }
+.ifig__canvas .bg-plot { max-width: 340px; cursor: ew-resize; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; }
+.bg-plot:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.bg-axis        { stroke: var(--c-text); stroke-width: 1.3; }
+.bg-curve       { fill: none; stroke: var(--c-text); stroke-width: 2.2; }
+.bg-tangent     { stroke: var(--c-subtle); stroke-width: 1.6; }
+.bg-gap         { stroke: var(--bg-red); stroke-width: 3; stroke-linecap: round; }
+.bg-tick        { stroke: var(--c-text); stroke-width: 1.3; }
+.bg-dot         { fill: var(--c-text); stroke: var(--c-bg); stroke-width: 1.5; }
+.bg-dot--lin    { fill: var(--c-subtle); }
+.bg-xlab        { font-size: 17px; fill: var(--c-text); }
+.bg-lab         { font-size: 14px; fill: var(--c-text); paint-order: stroke; stroke: var(--c-bg); stroke-width: 3px; stroke-linejoin: round; }
+.bg-ylab        { font-size: 17px; fill: var(--c-text); }
+.bg-sub         { font-size: 11px; }
+.bg-red         { font-size: 14px; font-style: italic; fill: var(--bg-red); }
+.bg-leader      { fill: none; stroke: var(--bg-red); stroke-width: 1.5; }
+.bg-arrowhead   { fill: var(--bg-red); }
+.bg-readout     { text-align: center; font-size: var(--text-sm); color: var(--c-text); margin-top: 2px; }
+.bg-val         { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* ── Dual under the Euclidean and the Fisher metric (dynamic/figures/ngd-metric.js), static ── */
+.nm-body     { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 8px 28px; }
+@media (max-width: 640px) { .nm-body { grid-template-columns: minmax(0, 300px); } }
+.ifig__canvas .nm-plot { cursor: default; }
+.nm-ball     { fill: none; stroke: var(--c-subtle); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.nm-tostar   { stroke: var(--fig-connector); stroke-width: 1.2; stroke-dasharray: 2 4; }
+.nm-g--grad  { stroke: var(--fig-grad); }
+.nm-g--nat   { stroke: var(--fig-natF); }
+.nm-m--grad path { fill: var(--fig-grad); }
+.nm-m--nat  path { fill: var(--fig-natF); }
+.hl-natF     { color: var(--fig-natF); font-weight: 600; }
+
+/* ── Function-space updates vs gradient descent (dynamic/figures/update-race.js) ── */
+.ur-body     { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 8px 28px; }
+@media (max-width: 640px) { .ur-body { grid-template-columns: minmax(0, 300px); } }
+.ur-panel    { position: relative; width: 100%; }
+.ifig__canvas .ur-panel svg { max-width: 300px; margin: 0; }
+.ur-theta    { cursor: crosshair; touch-action: none; user-select: none; -webkit-user-select: none; }
+.ur-title    { position: absolute; top: 2px; left: calc((44 + 123) / 300 * 100%); transform: translateX(-50%);
+               white-space: nowrap; padding: 0; line-height: 1; font-size: 19px; pointer-events: none; }
+.ur-title sup { font-size: .62em; }
+.ur-run--gd  { --ur-c: var(--fig-grad); }
+.ur-run--fu  { --ur-c: var(--fig-natH); }
+.ur-line     { fill: none; stroke: var(--ur-c); stroke-width: 1.6; stroke-linejoin: round; opacity: .85; }
+.ur-run circle { fill: var(--ur-c); }
+.ur-curve    { fill: none; stroke: var(--ur-c); stroke-width: 2; stroke-linejoin: round; }
+.ur-start .tp-theta { fill: var(--c-bg); stroke: var(--fig-theta); stroke-width: 1.8; }
+.ur-tick     { font-size: 12px; fill: var(--c-muted); }
+.ur-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 24px;
+               max-width: 640px; margin: 14px auto 0; }
+@media (max-width: 640px) { .ur-controls { grid-template-columns: 1fr; } }
+.ur-ctl      { display: flex; flex-direction: column; gap: 4px; font-size: var(--text-sm); color: var(--c-text); }
+.ur-val      { font-variant-numeric: tabular-nums; font-weight: 600; }
+/* Custom sliders: the browser's accent-color darkens the unfilled track for light colours
+   (the blue), so draw track, fill (--fill, set by update-race.js) and thumb ourselves */
+.ur-range    { --c: var(--c-accent); --fill: 50%; -webkit-appearance: none; appearance: none;
+               width: 100%; height: 18px; background: transparent; cursor: pointer; margin: 0; }
+.ur-range--gd { --c: var(--fig-grad); }
+.ur-range--fu { --c: var(--fig-natH); }
+.ur-range::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--c) var(--fill), var(--c-border) var(--fill));
+}
+.ur-range::-moz-range-track    { height: 6px; border-radius: 3px; background: var(--c-border); }
+.ur-range::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--c); }
+.ur-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; margin-top: -5px;
+  border-radius: 50%; background: var(--c); border: 2px solid var(--c-bg); box-shadow: 0 0 0 1px var(--c);
+}
+.ur-range::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 2px solid var(--c-bg); box-shadow: 0 0 0 1px var(--c);
+}
+.ur-range:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; border-radius: 4px; }
+
+/* ── Expert occupancy over each feature (dynamic/figures/expert-density.js), static ── */
+.ed-body   { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); justify-content: center; gap: 12px 28px; }
+@media (max-width: 640px) { .ed-body { grid-template-columns: minmax(0, 300px); } }
+.ed-title  { padding-bottom: 6px; }
+.ed-title sub { font-size: .7em; }
+.ifig__canvas .ed-plot { max-width: 300px; margin: 0; }
+.ed-stem   { stroke: var(--c-accent); stroke-width: 2; }
+.ed-dot    { fill: var(--c-accent); }
+.ed-tick   { font-size: 12px; fill: var(--c-muted); }
+
+.cv-title { position: absolute; top: 0; left: calc((44 + 123) / 300 * 100%); transform: translateX(-50%);
+            white-space: nowrap; padding: 0; line-height: 1; pointer-events: none; }
+.cv-title sub { font-size: .68em; line-height: 0; }
+.cv-xlab  { position: absolute; left: 55%; bottom: 2%; transform: translateX(-50%);
+            font-size: 17px; color: var(--c-text); pointer-events: none; }
+@media (max-width: 640px) { .cv-body { grid-template-columns: minmax(0, 300px); } }
+.ifig__canvas .cv-plot { width: 100%; max-width: 300px; margin: 0; touch-action: none; cursor: ew-resize;
+                         user-select: none; -webkit-user-select: none; }   /* dragging must not select text */
+.cv-curve  { fill: none; stroke: var(--c-text); stroke-width: 2; }
+.cv-chord  { stroke: var(--c-accent); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.cv-shade  { fill: color-mix(in oklab, var(--c-accent) 18%, transparent); stroke: none; }
+.cv-handle { fill: var(--fig-theta); stroke: var(--c-bg); stroke-width: 1.5; }
+.cv-tick   { font-size: 12px; fill: var(--c-muted); }
+
+@media (max-width: 640px) {
+  .om-body { grid-template-columns: minmax(0, 140px) auto minmax(90px, 1fr) auto; gap: 4px 8px; }
+  .om-label { font-size: 13px; }
+}
+
+/* Rollouts: states as circles, actions as labelled arrows, "…" for the continuation */
+.oc-roll { width: 100%; height: auto; justify-self: center; padding-right: 16px; box-sizing: border-box; }
+.oc-roll__state { fill: var(--c-bg); stroke: var(--c-text); stroke-width: 1.4; }
+.oc-roll__s     { font-size: 15px; font-weight: 600; fill: var(--c-head); text-anchor: middle; dominant-baseline: central; }
+.oc-roll__arrow { stroke: var(--c-subtle); stroke-width: 1.3; }
+.oc-roll__head  { fill: var(--c-subtle); }
+.oc-roll__a     { font-size: 12px; fill: var(--c-muted); }
+.oc-roll__t     { font-size: 13px; fill: var(--c-muted); }
+.oc-roll__dots  { font-size: 18px; fill: var(--c-muted); dominant-baseline: central; }
+
+/* Axis labels: same size and colour as the other figures' axis labels (.tp-axis) */
+.oc-axis    { font-size: 18px; color: var(--c-text); text-align: center; }
+.oc-axis--y { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; }
+.oc-axis--x { padding-top: 2px; }
+.oc-tick    { font-size: 15px; color: var(--c-muted); text-align: center; font-variant-numeric: tabular-nums; }
+.oc-tick--row { justify-self: end; padding-right: 6px; }
+
+.oc-cell {
+  height          : 100%;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  border-radius   : 4px;
+  font-size       : 18px;
+  font-weight     : 600;
+  color           : var(--c-head);
+  font-variant-numeric: tabular-nums;
+  transition      : background .12s;
+  cursor          : default;
+}
+.oc-cell.is-strong { color: #ffffff; }
+html.dark .oc-cell.is-strong { color: #0b0f16; }
+
+/* Colour bar (fixed 0 → 1) with its two ticks */
+.oc-bar {
+  width         : 12px;
+  height        : 100%;
+  justify-self  : end;
+  border-radius : 3px;
+  background    : linear-gradient(to top, var(--oc-lo), var(--oc-hi));
+}
+.oc-bartick {
+  height          : 100%;
+  display         : flex;
+  flex-direction  : column;
+  justify-content : space-between;
+  padding-left    : 4px;
+  font-size       : 12px;
+  color           : var(--c-muted);
+}
+
+/* Narrow screens: the rollouts move below the grid, full width */
+@media (max-width: 860px) {
+  .oc-body { grid-template-columns: minmax(0, 190px) 0 26px 18px 80px 80px 22px auto;
+             grid-template-rows: auto 80px 80px auto auto auto auto; }
+  .oc-title--roll { grid-row: 6 !important; grid-column: 1 / -1 !important; padding-top: 14px; }
+  .oc-roll { grid-row: 7 !important; grid-column: 1 / -1 !important; width: 100%; max-width: 360px; height: auto; margin-right: 0; }
+}
+@media (max-width: 640px) {
+  .oc-body { grid-template-columns: minmax(0, 150px) 0 22px 16px 64px 64px 20px auto;
+             grid-template-rows: auto 64px 64px auto auto auto auto; }
+  .oc-cell { font-size: 15px; }
+}
+
+.tp-frame   { fill: none; stroke: var(--c-subtle); stroke-width: 1; }
+/* Θ-space is the box you interact with: darker, thicker frame, lifted on hover */
+.tp-plot--theta .tp-frame { stroke: var(--c-head); stroke-width: 2.2; transition: stroke-width .15s; }
+.tp-plot--theta:hover .tp-frame { stroke-width: 3; }
+.tp-title   { font-family: var(--font-mono); font-size: 22px; fill: var(--c-text); }
+.tp-axis    { font-size: 18px; fill: var(--c-text); }
+.tp-sub     { font-size: 12px; }
+.tp-label   { font-size: 17px; font-weight: 600; fill: var(--fig-theta); paint-order: stroke;
+              stroke: var(--c-bg); stroke-width: 3px; stroke-linejoin: round; }  /* halo over contours */
+.tp-sup     { font-size: 13px; }
+.tp-hat     { fill: none; stroke: var(--fig-theta); stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+.tp-supsub  { font-size: 10px; }
+.tp-theta   { fill: var(--fig-theta); }                         /* θ circles and φ squares */
+.tp-probe .tp-theta { stroke: var(--c-bg); stroke-width: 1.5; } /* moving θ⁽ⁱ⁾, φ_ρ⁽ⁱ⁾, φ̂ */
+.tp-pt.is-hidden, .tp-geodesic.is-hidden { display: none; }
+.tp-geodesic {                                                   /* e-geodesic φ̂ → φ_ρ⁽ⁱ⁾ */
+  stroke           : var(--fig-connector);
+  stroke-width     : 1.4;
+  stroke-dasharray : 5 4;
+}
+
+/* Edge rewards r_θ, always shown in the reward colour and never faded:
+   non-optimal edges fade only their line */
+.tp-fig .ts-edge .ts-r { fill: var(--ts-reward); font-weight: 600; }
+.tp-fig .ts-edge.is-dim { opacity: 1; }
+.tp-fig .ts-edge.is-dim path { opacity: .2; }
+.tp-marks   { pointer-events: none; }
+
+.tp-contours       { opacity: 0; transition: opacity .3s; }
+.tp-contours.is-on { opacity: 1; }
+.tp-contour {
+  fill           : none;
+  stroke         : var(--c-subtle);
+  stroke-width   : .9;
+  stroke-linecap : round;
+}
+
+.tp-fig [data-toggle="dual"]   { --chip-c: var(--c-subtle); --hl-c: var(--c-head); }
+.tp-fig [data-toggle="expert"] { --chip-c: var(--ts-expert); --hl-c: var(--ts-expert); }
+.tp-fig [data-toggle="grads"]  { --chip-c: var(--fig-natF);  --hl-c: var(--c-head); }
+
+/* Update directions at θ⁽ⁱ⁾ (paper Fig. 1 colours) */
+.tp-grads       { display: none; }
+.tp-grads.is-on { display: inline; }
+.tp-g           { stroke-width: 2.2; stroke-linecap: round; }
+.tp-g--grad     { stroke: var(--fig-grad); }      /* vanilla gradient      */
+.tp-g--func     { stroke: var(--fig-natH); }      /* functional update     */
+.tp-g--direct   { stroke: var(--fig-natF); }      /* direct optimisation   */
+.tp-gm--grad   path { fill: var(--fig-grad); }
+.tp-gm--func   path { fill: var(--fig-natH); }
+.tp-gm--direct path { fill: var(--fig-natF); }
+.tp-gline       { stroke: var(--fig-natF); stroke-width: 1.2; stroke-dasharray: 4 4; opacity: .6; }
+.hl-grad   { color: var(--fig-grad); font-weight: 600; }
+.hl-func   { color: var(--fig-natH); font-weight: 600; }
+.hl-direct { color: var(--fig-natF); font-weight: 600; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 16 · BLOG-SPECIFIC ELEMENTS
+ * ══════════════════════════════════════════════════════════════ */
+
+/* Post metadata row */
+.post-meta {
+  display     : flex;
+  flex-wrap   : wrap;
+  gap         : 14px;
+  font-size   : var(--text-sm);
+  color       : var(--c-subtle);
+  margin-bottom: 26px;
+  align-items : center;
+}
+.post-meta i { font-size: 11px; margin-right: 3px; }
+
+/* Section headings inside blog posts */
+h2.blog-h2 {
+  font-size      : 17px;
+  font-weight    : 700;
+  letter-spacing : -.01em;
+  color          : var(--c-head);
+  margin         : 38px 0 12px;
+}
+h2.blog-h2:first-of-type { margin-top: 0; }
+
+/* Placeholder content block (blog draft sections) */
+.ph-block {
+  background    : var(--c-surf);
+  border        : 1.5px dashed var(--c-border);
+  border-radius : var(--r-md);
+  padding       : 24px 20px;
+  margin        : 14px 0;
+  color         : var(--c-subtle);
+  font-size     : var(--text-sm);
+  font-style    : italic;
+  line-height   : 1.65;
+}
+.ph-block strong {
+  display        : block;
+  font-style     : normal;
+  font-weight    : 700;
+  font-size      : var(--text-xs);
+  text-transform : uppercase;
+  letter-spacing : .08em;
+  color          : var(--c-muted);
+  margin-bottom  : 7px;
+}
+
+/* Dot-grid figure placeholder (blog variant) */
+.fig-ph--dotgrid {
+  background-color  : var(--c-surf);
+  background-image  : radial-gradient(circle, var(--c-dot) 1px, transparent 1px);
+  background-size   : 20px 20px;
+  border            : 1px solid var(--c-border);
+}
+
+/* Back-to-paper CTA at bottom of blog */
+.back-cta {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 7px;
+  font-size      : var(--text-sm);
+  font-weight    : 600;
+  color          : var(--c-accent);
+  border         : 1.5px solid var(--c-accent);
+  border-radius  : var(--r-sm);
+  padding        : 8px 16px;
+  margin-top     : 30px;
+  text-decoration: none;
+  transition     : background .15s, color .15s;
+}
+.back-cta:hover {
+  background   : var(--c-accent);
+  color        : #fff;
+  border-color : var(--c-accent);
+  border-bottom: 1.5px solid var(--c-accent);
+}
+
+/* Horizontal rule */
+hr {
+  border     : none;
+  border-top : 1px solid var(--c-border);
+  margin     : 28px 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 16.5 · VIDEO GRID
+ * Autoplay, looping, square-cropped videos. No controls.
+ * ══════════════════════════════════════════════════════════════ */
+
+.video-grid {
+  display               : grid;
+  grid-template-columns : repeat(3, 1fr);
+  gap                   : 12px;
+  margin                : 20px auto 8px;
+  max-width             : 640px;
+}
+
+.video-col {
+  display        : flex;
+  flex-direction : column;
+  gap            : 6px;
+}
+
+.video-col-title {
+  font-size   : var(--text-sm);
+  font-weight : 600;
+  text-align  : center;
+  color       : var(--c-muted);
+}
+
+.video-wrapper {
+  position      : relative;
+  width         : 100%;
+  aspect-ratio  : 1 / 1;
+  border-radius : var(--r-md);
+  overflow      : hidden;
+  border        : 1px solid var(--c-border);
+  background    : #000;
+}
+
+.video-wrapper video {
+  width        : 100%;
+  height       : 100%;
+  object-fit   : cover;
+  display      : block;
+  pointer-events: none;
+}
+
+.video-grid--mujoco {
+  /* To add another video: increment --mujoco-cols by 1. */
+  --mujoco-cols         : 5;
+  grid-template-columns : repeat(var(--mujoco-cols), 1fr);
+  /* 101px per column + 12px gap between each column */
+  max-width             : calc(var(--mujoco-cols) * 101px + (var(--mujoco-cols) - 1) * 12px);
+  margin-top            : 10px;
+}
+
+@media (max-width: 600px) {
+  .video-grid,
+  .video-grid--mujoco {
+    grid-template-columns : 1fr;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 17 · FOOTER
+ * ══════════════════════════════════════════════════════════════ */
+
+.site-footer {
+  margin-top    : 64px;
+  padding-top   : 20px;
+  border-top    : 1px solid var(--c-border);
+  font-size     : var(--text-sm);
+  color         : var(--c-subtle);
+}
+.site-footer a {
+  color       : var(--c-subtle);
+  border      : none;
+  transition  : color .15s;
+}
+.site-footer a:hover { color: var(--c-accent); }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 17.5 · KEY MESSAGE BANNER
+ * ══════════════════════════════════════════════════════════════ */
+
+.key-banner {
+  display       : flex;
+  align-items   : center;
+  gap           : 14px;
+  background    : #fff5f5;
+  border        : 1.5px solid #fca5a5;
+  border-radius : var(--r-md);
+  padding       : 12px 18px;
+  margin-bottom : 24px;
+  flex-wrap     : wrap;
+}
+.key-banner__icon {
+  width       : 22px;
+  height      : 22px;
+  flex-shrink : 0;
+  color       : #e03131;
+}
+.key-banner__text {
+  font-size   : 15px;
+  font-weight : 600;
+  color       : #6b1a1a;
+  flex        : 1;
+  min-width   : 0;
+  line-height : 1.4;
+}
+.key-banner__cta {
+  font-size   : var(--text-sm);
+  font-weight : 600;
+  color       : #e03131;
+  border      : none;
+  white-space : nowrap;
+}
+.key-banner__cta:hover { color: #6b1a1a; border: none; }
+
+html.dark .key-banner {
+  background  : #1c0505;
+  border-color: #7f1d1d;
+}
+html.dark .key-banner__icon { color: #fc8181; }
+html.dark .key-banner__text { color: #fecaca; }
+html.dark .key-banner__cta  { color: #fc8181; }
+html.dark .key-banner__cta:hover { color: #fecaca; border: none; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 18 · APPEAR ANIMATIONS
+ * Elements with class="ap" fade in when scrolled into view.
+ * JavaScript (bottom of each HTML file) drives this via
+ * IntersectionObserver. Delay is set programmatically.
+ * ══════════════════════════════════════════════════════════════ */
+
+.ap {
+  opacity    : 0;
+  transition : opacity .5s ease;
+}
+.ap.in { opacity: 1; }
+
+
+/* ══════════════════════════════════════════════════════════════
+ * SECTION 19 · RESPONSIVE
+ * ══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 720px) ── */
+@media (max-width: 720px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+
+  .page { padding-left: 28px; padding-right: 28px; }
+}
+
+/* ── Large phone (≤ 540px) ── */
+@media (max-width: 540px) {
+  .page        { padding-left: var(--page-pad-sm); padding-right: var(--page-pad-sm); }
+  .site-title  { font-size: 21px; }
+  .tldr        { font-size: var(--text-base); }
+
+  .btns        { gap: 7px; }
+  /* let buttons wrap naturally — no forced column */
+}
+
+/* ── Phone (≤ 420px) ── */
+@media (max-width: 420px) {
+  .stats { grid-template-columns: 1fr; }
+  .site-title { font-size: 19px; }
+  .stat__val  { font-size: 20px; }
+}
+
+
+/* In-text links to a figure (a.fig-ref): the linked figure is subtly outlined while
+   the link is hovered or focused (theory.html script). */
+figure { scroll-margin-top: 80px; }
+figure.ifig { outline: 2px solid transparent; outline-offset: 10px; border-radius: var(--r-md);
+              transition: outline-color .2s; }
+figure.ifig.is-referenced { outline-color: color-mix(in srgb, var(--c-accent) 35%, transparent); }
