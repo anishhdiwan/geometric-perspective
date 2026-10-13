@@ -1803,6 +1803,30 @@ html.dark .oc-cell.is-strong { color: #0b0f16; }
 .hl-func   { color: var(--fig-natH); font-weight: 600; }
 .hl-direct { color: var(--fig-natF); font-weight: 600; }
 
+/* ── Quadratic forms and definiteness (dynamic/figures/quad-form.js) ── */
+/* Contours | 3D surface share the curvature figure's layout (.cc-top, .cc-3d, .cc-grid, .cc-level) */
+.ifig__canvas .qf-plot { cursor: default; }
+.qf-axis     { stroke-width: 1.2; stroke-dasharray: 5 4; }
+.qf-axis--1, .qf-semi--1 { stroke: var(--fig-natH); }   /* q₁: blue   */
+.qf-axis--2, .qf-semi--2 { stroke: var(--fig-natF); }   /* q₂: purple */
+.qf-semi     { stroke-width: 2.4; stroke-linecap: round; }
+.qf-level    { fill: none; stroke: var(--fig-grad); stroke-width: 2.2; }
+.qf-origin   { fill: var(--fig-theta); }
+.qf-lab      { font-size: 14px; font-weight: 600; paint-order: stroke; stroke: var(--c-bg); stroke-width: 3px; stroke-linejoin: round; }
+.qf-lab--1   { fill: var(--fig-natH); }
+.qf-lab--2   { fill: var(--fig-natF); }
+.qf-sub      { font-size: 10px; }
+.qf-type     { text-align: center; font-size: var(--text-sm); color: var(--c-text); margin-top: 6px; }
+.qf-range--2 { --c: var(--fig-natF); }
+.qf-mats     { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px; margin-top: 8px; font-size: var(--text-sm); color: var(--c-text); }
+.qf-mats > span:nth-child(odd):not(:first-child) { margin-left: 14px; }
+/* A matrix in square brackets: the brackets are two thin boxes open towards the entries */
+.qf-mat      { position: relative; display: inline-grid; grid-template-columns: auto auto; gap: 0 12px; text-align: right;
+               padding: 2px 9px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.qf-mat::before, .qf-mat::after { content: ''; position: absolute; top: 0; bottom: 0; width: 5px; border: 1.5px solid var(--c-text); }
+.qf-mat::before { left: 0;  border-right: none; }
+.qf-mat::after  { right: 0; border-left: none; }
+
 
 /* ══════════════════════════════════════════════════════════════
  * SECTION 16 · BLOG-SPECIFIC ELEMENTS

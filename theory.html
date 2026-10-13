@@ -41,7 +41,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Site styles — shared with index.html -->
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=8">
 
   <!-- Must run in <head> to avoid flash of wrong theme on load.
        Same storage key as index.html, so the theme carries over. -->
@@ -1244,6 +1244,42 @@
     <li><strong>Adjoint and self-adjoint.</strong> The adjoint $T^*$ of a linear map $T$ satisfies $\langle T\mathbf{v}, \mathbf{w} \rangle = \langle \mathbf{v}, T^* \mathbf{w} \rangle$ for all $\mathbf{v}, \mathbf{w}$, and $T$ is self-adjoint if $T = T^*$. A self-adjoint map has real eigenvalues and an orthonormal basis of eigenvectors \cite{lankham2016linear}. For the standard inner product, the adjoint of a matrix is its transpose, so self-adjoint means symmetric.</li>
   </ol>
 
+  <!-- ═══════════════════════════════════════════════════════
+       FIGURE · Quadratic forms and definiteness (interactive)
+       ═══════════════════════════════════════════════════════ -->
+  <figure class="ifig ap" id="fig-quad-form">
+    <div class="ifig__canvas">
+      <div class="cc-top">
+        <div class="tp-left"><svg class="tp-plot qf-plot" viewBox="0 0 300 318" role="img"
+             aria-label="Contours of the quadratic form of a symmetric 2 by 2 matrix, its principal axes and, when the matrix is positive definite, the level set where the form equals one"></svg></div>
+        <div class="tp-left"><div class="oc-title cc-3d-title">f(x) surface</div>
+          <svg class="cc-3d qf-3d" viewBox="0 0 300 260" role="img"
+             aria-label="The same quadratic form drawn as a surface in 3D"></svg></div>
+      </div>
+      <div class="qf-type"></div>
+      <div class="qf-mats">
+        <span>$Q =$</span><span class="qf-mat"><span data-m="q11"></span><span data-m="q12"></span><span data-m="q21"></span><span data-m="q22"></span></span>
+        <span>$\Lambda =$</span><span class="qf-mat"><span data-m="l11"></span><span data-m="l12"></span><span data-m="l21"></span><span data-m="l22"></span></span>
+        <span>$A = Q \Lambda Q^\intercal =$</span><span class="qf-mat"><span data-m="a11"></span><span data-m="a12"></span><span data-m="a21"></span><span data-m="a22"></span></span>
+      </div>
+      <div class="ur-controls">
+        <label class="ur-ctl"><span class="ur-name">$\lambda_1$ = <span class="ur-val" data-v="l1"></span></span>
+          <input type="range" class="ur-range ur-range--fu" data-s="l1" min="-2" max="2" step="0.05"></label>
+        <label class="ur-ctl"><span class="ur-name">$\lambda_2$ = <span class="ur-val" data-v="l2"></span></span>
+          <input type="range" class="ur-range qf-range--2" data-s="l2" min="-2" max="2" step="0.05"></label>
+        <label class="ur-ctl"><span class="ur-name">rotation of $Q$ = <span class="ur-val" data-v="deg"></span></span>
+          <input type="range" class="ur-range" data-s="deg" min="0" max="180" step="1"></label>
+      </div>
+    </div>
+    <figcaption>
+      <strong>Quadratic forms, definiteness, and eigendecomposition.</strong>
+      Here, we illustrate the contours and 3D surface of a quadratic function $f(\mathbf{x}) = \mathbf{x}^\intercal A \mathbf{x}$, where $A$ is a symmetric matrix with eigendecomposition $A = Q \Lambda Q^\intercal$. $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2)$ is a diagonal matrix of eigenvalues and $Q$ a rotation matrix. The principal axes <span class="hl-func">$\mathbf{q}_1$</span> and <span class="hl-direct">$\mathbf{q}_2$</span> are the columns of $Q$ (eigenvectors).<br><br>
+      
+      The signs of the eigenvalues $\lambda_i$ set the shape of the quadratic form: a bowl (positive definite), a flat trough (positive semi-definite), a saddle (indefinite) or a cap (negative definite).
+      When $A$ is positive definite ($A \succ 0$), its level sets are ellipses. For the level set $f(\mathbf{x}) = 1$, its semi-axes have length $\nicefrac{1}{\sqrt{\lambda_i}}$. The curvature is low along the long axis (small eigenvalue) and high along the short axis (large eigenvalue).
+    </figcaption>
+  </figure>
+
 
   <!-- ═══════════════════════════════════════════════════════
        FOOTER
@@ -1273,6 +1309,7 @@
 <script src="dynamic/figures/bregman.js?v=1"></script>
 <script src="dynamic/figures/md-primal-dual.js?v=1"></script>
 <script src="dynamic/figures/curvature-compare.js?v=1"></script>
+<script src="dynamic/figures/quad-form.js?v=5"></script>
 <script src="dynamic/figures/theta-space.js?v=1"></script>
 
 
