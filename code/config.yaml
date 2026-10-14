@@ -1,0 +1,109 @@
+experiment_name: FunctionalUpdates
+angle_table: False  # geometries.py: print angles to the direct-optimisation direction
+
+hydra:
+  run:
+    dir: outputs/${experiment_name}_${now:%Y-%m-%d_%H-%M-%S}
+
+# Icy grid world
+env:
+  world_size: 5
+  r_default: -1
+  r_abs: 0
+  r_goal: 0
+  p_slip: 0.2
+  initial_idx: [0]
+  absorbing_idx: [24]
+  terminal_idx: []
+  penultimate_coords:
+    - [4, 3]
+    - [3, 4]
+  rewarding_actions_idx: [0, 2]
+
+expert:
+  n_trajectories: 5000
+
+irl:
+  algo: trirl  # trirl | vanilla_grad | natural_grad | path_integral_natural_grad
+  init_theta: 0.0
+  discount: 0.99
+  max_iter: 8
+  seed: 0
+  epsilon: 0.1
+  beta: 10.0
+  init_eta: 0.1
+  eval_dual: True
+
+plotting:
+  font: monospace
+  titlesize: 24
+  labelsize: 24
+  legendsize: 24
+  ticksize: 10
+  label_idx_fontsize: 8
+
+  figsize: [8, 5]
+  fig_scale_w: 2.0
+  fig_scale_h: 0.82
+  titlepad: 10.0
+  axes_aspect: null
+  subadj: {left: 0.02, right: 0.92, bottom: 0.10, top: 0.55, wspace: 0.12}
+  legend_y: 1.02
+  show_iter_labels: False
+
+  path_lw: 1.5
+  ellipse_lw: 1.1
+  connector_lw: 0.75
+  arrow_width: 0.004
+  arrow_head_w: 0.040
+  path_ms: 5.0
+  step_ms: 3.0
+  metric_dot_ms: 2.0
+  legend_lw: 1.6
+  legend_marker_ms: 5.5
+
+  theta_xlabel: '$\theta_2$'
+  theta_ylabel: '$\theta_1$'
+  phi_xlabel: '$\phi_2$'
+  phi_ylabel: '$\phi_1$'
+  title_theta: '$\Theta$-space'
+  title_phi: '$\Phi$-space'
+  title_theta_g: '$\Theta$-space Geometry'
+  title_phi_g: '$\Phi$-space Geometry'
+
+  color_grad: '#DF1659'        # vanilla gradient
+  color_natF: '#9B59B6'        # F-natural gradient
+  color_natH: '#1E90FF'        # H-natural gradient (ours)
+  color_F_curve: '#9B59B6'     # F ellipse
+  color_H_curve: '#1E90FF'     # H ellipse (ours)
+  color_theta_hess: '#F1C40F'  # Hessian ellipse
+  color_theta_path: '#000000'  # theta path
+  color_phi_curr: '#2ECC71'    # phi_rho path
+  color_phi_tgt: '#E072A4'     # phi_hat path
+  color_connector: '#AAAAAA'   # dashed phi_rho - phi_hat connector
+
+  legend:
+    theta_path: '$\theta$ path'
+    phi_rho: '$\phi_{\rho}$ path'
+    phi_hat: '$\hat{\phi}$ path'
+    connector: '$\phi_{\rho}^{(i)} - \hat{\phi}^{(i)}$'
+    grad: '$\nabla_\theta G$'
+    natF: '$F^{-1}\nabla_\theta G$'
+    natH: '$H^{-1}\nabla_\theta G$'
+    theta_hess: '$\nabla_\theta^2 G$'
+    F: '$F$'
+    H: '$H$'
+  legend_ncol: 5
+  legend_col_spacing: 0.75
+  legend_handle_len: 1.2
+  legend_handle_pad: 0.35
+
+  dpi: 300
+  pad_frac_limits: 0.10
+  pad_frac_metric: 0.18
+  label_offset_base: 0.12
+  label_offset_step: 0.04
+  n_ellipse_pts: 300
+  arrow_alpha: 0.85
+  connector_alpha: 0.65
+  ellipse_alpha: 0.75
