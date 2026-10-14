@@ -136,7 +136,7 @@
        BUTTONS
        ═══════════════════════════════════════════════════════ -->
   <div class="btns ap">
-    <a class="btn btn--primary" href="[PAPER_URL]" onclick="sa_event('click_paper')">
+    <a class="btn btn--primary" href="https://arxiv.org/pdf/2610.14041" onclick="sa_event('click_paper')">
       <i class="fas fa-file-alt"></i> Paper
     </a>
     <a class="btn" href="https://github.com/anishhdiwan/geometric-perspective">
@@ -157,7 +157,7 @@
        TL;DR
        ═══════════════════════════════════════════════════════ -->
   <p class="tldr ap">
-    <strong>Summary:</strong>&ensp; This is a detailed write-up explaining my recent paper on some interesting geometric perspectives on reward updates in inverse reinforcement learning. The key takeaways of the paper are listed <a href="index.html#key-results">here</a>. In this write-up, we will instead take a much more low-level approach, walking through the background of the paper and the mathematical details of some proofs and assumptions. My goal here is to build intuition on the quantities and properties explored in the paper, rather than to just list the key results. Though this is a low-level explainer, I still assume some familiarity with <a href="https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">reinforcement learning</a>, and the <a href="https://www.youtube.com/playlist?list=PLXsmhnDvpjORzPelSDs0LSDrfJcqyLlZc">basics of probability and optimization</a>. We will start with some background on RL and inverse RL, then move on to the specific problem setting of this paper, discuss an empirically strong alternative to gradient descent reward updates, and then spend the majority of this write-up exploring why this update is so strong. PS: many of the figures on this page are interactive!
+    <strong>Summary:</strong>&ensp; This is a detailed write-up explaining my recent paper on some interesting geometric perspectives on reward updates in inverse reinforcement learning. The key takeaways of the paper are listed <a href="index.html#key-results">here</a>. In this write-up, we will instead take a much more low-level approach, walking through the background of the paper and the mathematical details of some proofs and assumptions. My goal here is to build intuition on the quantities and properties explored in the paper, rather than to just list the key results. Though this is a low-level explainer, I still assume some familiarity with <a href="https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf">reinforcement learning</a> and <a href="https://www.youtube.com/playlist?list=PLXsmhnDvpjORzPelSDs0LSDrfJcqyLlZc">basic probability and optimization</a>. We will start with some background on RL and inverse RL, then move on to the specific problem setting of this paper, discuss an empirically strong alternative to gradient descent reward updates, and then spend the majority of this write-up exploring why this update is so strong. PS: many of the figures on this page are interactive!
   </p>
 
 
@@ -524,7 +524,7 @@
     \arg\min_d \; & \mathcal{G}(\theta) + \nabla_{\theta} \mathcal{G}(\theta)^\intercal d \\
     = \arg\min_d \; & \nabla_{\theta} \mathcal{G}(\theta)^\intercal d
     \end{align*}$$
-    However, being a linear function, it has no minimum without a set constraint. Further, the first-order expansion is only valid for a small $d$. To define a suitable set over which to minimize $\nabla_{\theta} \mathcal{G}(\theta)^\intercal d$, we need to include an additional constraint on the length of $d$ (called the proximal term). Say we define the length by $\left\lVert d \right\rVert_{M}^2 = d^\intercal M d$ with $M$ being a positive semi-definite matrix. The first-order optimization problem then becomes
+    However, being a linear function, it has no minimum without a set constraint. Further, the first-order expansion is only valid for a small $d$. To define a suitable set over which to minimize $\nabla_{\theta} \mathcal{G}(\theta)^\intercal d$, we need to include an additional constraint on the length of $d$ (called the proximal term). Say we define the length by $\left\lVert d \right\rVert_{M}^2 = d^\intercal M d$ with $M$ being a positive definite matrix. The first-order optimization problem then becomes
     $$\arg\min_d \; \nabla_{\theta} \mathcal{G}(\theta)^\intercal d \quad \text{s.t.} \quad \underbrace{d^\intercal M d \leq \varepsilon^2}_{\text{prox. term}}$$
     The optimal solution is obtained by forming a Lagrangian with multiplier $\lambda \geq 0$. Setting its derivative with respect to $d$ to zero and using that the constraint is active (for $\nabla_{\theta} \mathcal{G}(\theta) \neq 0$),
     $$\begin{aligned}
